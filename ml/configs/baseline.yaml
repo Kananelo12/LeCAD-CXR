@@ -1,0 +1,25 @@
+# Baseline run. Copy this file per experiment rather than editing it —
+# the config IS the record of what produced a given result.
+name: baseline-densenet121
+
+model:
+  architecture: densenet121     # densenet121 | resnet50 | efficientnet_b0
+  pretrained: true              # ImageNet weights; see transforms.py for stats
+
+data:
+  image_size: 224
+  batch_size: 32
+  num_workers: 4
+
+optim:
+  epochs: 15
+  lr: 1.0e-4
+  weight_decay: 1.0e-5
+  scheduler: cosine
+  use_pos_weight: true          # counter class imbalance in BCE
+
+eval:
+  primary_metric: macro_auc     # prevalence-insensitive; see splits.py
+  # Hernia (141 train_val images) and Pneumonia (876) are too sparse for a
+  # trustworthy per-class AUC. Report with a caveat, do not quietly drop.
+  report_per_class: true

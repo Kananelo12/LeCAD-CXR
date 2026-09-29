@@ -1,0 +1,47 @@
+{
+  "seed": 42,
+  "val_patient_fraction": 0.15,
+  "patients": {
+    "train": 23807,
+    "val": 4201,
+    "test": 2797
+  },
+  "images": {
+    "train": 73499,
+    "test": 25596,
+    "val": 13025
+  },
+  "metadata_sha256": "88f75094e25ccc0c6f1f9cdfd4b2f94f9379a0ae07d5ff4dcf94242707b07462",
+  "label_prevalence_train": {
+    "Atelectasis": 0.09457,
+    "Cardiomegaly": 0.01951,
+    "Effusion": 0.09848,
+    "Infiltration": 0.15818,
+    "Mass": 0.04688,
+    "Nodule": 0.05377,
+    "Pneumonia": 0.00997,
+    "Pneumothorax": 0.0302,
+    "Consolidation": 0.03267,
+    "Edema": 0.0159,
+    "Emphysema": 0.01595,
+    "Fibrosis": 0.01453,
+    "Pleural_Thickening": 0.02566,
+    "Hernia": 0.00162
+  },
+  "label_prevalence_val": {
+    "Atelectasis": 0.10203,
+    "Cardiomegaly": 0.02096,
+    "Effusion": 0.1091,
+    "Infiltration": 0.16553,
+    "Mass": 0.04514,
+    "Nodule": 0.05804,
+    "Pneumonia": 0.01098,
+    "Pneumothorax": 0.03202,
+    "Consolidation": 0.03463,
+    "Edema": 0.01605,
+    "Emphysema": 0.01927,
+    "Fibrosis": 0.01405,
+    "Pleural_Thickening": 0.02733,
+    "Hernia": 0.00169
+  }
+}

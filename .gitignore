@@ -1,0 +1,65 @@
+# ── Data: NEVER commit. The dataset lives outside this repo. ──────────────
+data/
+archive/
+*.png
+*.jpg
+*.jpeg
+*.tar.gz
+!docs/**/*.png
+
+# ── Model weights & artefacts ─────────────────────────────────────────────
+*.pt
+*.pth
+*.ckpt
+*.onnx
+*.safetensors
+ml/artifacts/
+ml/runs/
+ml/.cache/
+wandb/
+
+# ── Secrets ───────────────────────────────────────────────────────────────
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+
+# ── Research data (interviews) — must never touch this repo ───────────────
+interviews/
+transcripts/
+consent/
+*.m4a
+*.mp3
+*.wav
+
+# ── Python ────────────────────────────────────────────────────────────────
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.env/
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+
+# ── Notebooks ─────────────────────────────────────────────────────────────
+.ipynb_checkpoints/
+ml/notebooks/**/outputs/
+
+# ── Node / Next.js ────────────────────────────────────────────────────────
+node_modules/
+.next/
+out/
+.vercel/
+npm-debug.log*
+
+# ── OS / editors ──────────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
