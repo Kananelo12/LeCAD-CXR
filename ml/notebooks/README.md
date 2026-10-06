@@ -30,8 +30,9 @@ Why the discipline:
 
 | file | purpose |
 |---|---|
-| `01_eda.ipynb` | label prevalence, co-occurrence, patient/age/view distributions |
+| `01_eda.ipynb` | **exists**: label prevalence, co-occurrence, patient/age/view distributions. Findings in `docs/eda-summary.md` |
 | `02_image_checks.ipynb` | look at actual radiographs; hunt for burned-in text markers |
 | `03_results.ipynb` | ROC curves, confusion matrices, Grad-CAM panels for the write-up |
+| `kaggle_train.ipynb` | **exists** — Kaggle runner; clones the repo and calls `train.py`. No logic of its own |
 
 Run EDA on **train and validation only**. The test set stays closed.

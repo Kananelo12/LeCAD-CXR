@@ -28,12 +28,24 @@ but important findings.
 - Labels are NLP-mined from reports, not image annotations.
 - "No Finding" ≠ normal.
 - Hernia (141 train_val images) and Pneumonia (876) are too sparse for
-  reliable per-class estimates.
+  reliable per-class estimates. Validation holds only about 22 Hernia and
+  143 Pneumonia images.
 - Training data come from a single US institution. Population, equipment
   and disease prevalence differ from Lesotho; performance is not assumed to
   transfer and local validation is required before any clinical use.
 - Test set prevalence is systematically higher than train_val, so
   threshold-dependent metrics shift between validation and test.
+- View position confounds labels: Edema is 11× and Consolidation 2.8×
+  more prevalent on AP (often bedside) films than PA. The model may partly
+  learn "AP film" rather than the finding. Validation AUC is to be reported
+  per view. *(EDA, docs/eda-summary.md §6)*
+- Most films carry burned-in laterality markers, and AP films often show
+  ECG leads and lines. These are potential shortcut features, to be checked
+  with Grad-CAM. *(EDA §8)*
+- 4.8% of training images are from patients under 18, although paediatric
+  use is out of scope. *(EDA §5. Decision pending: exclude or retain.)*
+- The class-weight cap (50) under-weights the five rarest classes; Hernia
+  by about 12×. *(EDA §2)*
 
 ## Ethical considerations
 No patient-identifiable data used. Images are from a public de-identified
