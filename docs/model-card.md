@@ -29,7 +29,9 @@ but important findings.
 - "No Finding" ≠ normal.
 - Hernia (141 train_val images) and Pneumonia (876) are too sparse for
   reliable per-class estimates. Validation holds only about 22 Hernia and
-  143 Pneumonia images.
+  143 Pneumonia images. **Decision (2026-10-06, with supervisor): all 14
+  labels retained.** The task is multi-label with an independent output per
+  finding, so sparse labels are trained and reported, with that caveat.
 - Training data come from a single US institution. Population, equipment
   and disease prevalence differ from Lesotho; performance is not assumed to
   transfer and local validation is required before any clinical use.
@@ -43,7 +45,9 @@ but important findings.
   ECG leads and lines. These are potential shortcut features, to be checked
   with Grad-CAM. *(EDA §8)*
 - 4.8% of training images are from patients under 18, although paediatric
-  use is out of scope. *(EDA §5. Decision pending: exclude or retain.)*
+  use is out of scope. **Decision (2026-10-06): retained** for
+  comparability with published results on this dataset. An adults-only
+  (18+) validation result is reported alongside the overall one. *(EDA §5)*
 - The class-weight cap (50) under-weights the five rarest classes; Hernia
   by about 12×. *(EDA §2)*
 

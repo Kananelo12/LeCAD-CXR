@@ -60,6 +60,10 @@ reported, **not** that the film is normal.
 - Validation holds only about **22 Hernia** and about **143 Pneumonia**
   images. Their per-class AUCs will have wide uncertainty and should be
   reported with that caveat (ideally with bootstrap confidence intervals).
+- **Decision (2026-10-06, with supervisor): all 14 labels are retained,
+  Hernia included.** Each finding has its own independent output, so a
+  sparse label is learned alongside the others rather than competing with
+  them.
 
 ## 3. Multi-label: findings come in clusters
 
@@ -103,11 +107,12 @@ Interpret explanations per image, not per label in isolation.
   and Cardiomegaly 1.6× more prevalent in female images, and Emphysema is
   0.74× as prevalent.
 
-**Implication / decision needed.** The model card lists paediatric imaging
-as *out of scope*, yet children's films are in the training data. Either
-exclude patients under 18 from training (consistent with the stated scope),
-or keep them and say so explicitly. Whichever is chosen, record the
-decision.
+**Implication.** The model card lists paediatric imaging as *out of
+scope*, yet children's films are in the training data.
+**Decision (2026-10-06): retained**, for comparability with published
+results on this dataset. `evaluate.py` reports an adults-only (18+) result
+alongside the overall one, so the claim can be stated for the intended-use
+population.
 
 ## 6. View position is a strong confounder
 
@@ -170,6 +175,7 @@ From `07_examples_per_label.png`:
 | 2 | Patient-level split | Implemented and verified (0 overlap) |
 | 3 | Class weighting capped at 50 | Implemented; **document** the effect on five classes |
 | 4 | Confidence intervals for sparse classes | To add to evaluation |
-| 5 | Per-view (PA/AP) validation AUC | To add to evaluation |
+| 5 | Per-view (PA/AP) validation AUC | Implemented (`evaluate.py` subgroups) |
 | 6 | Grad-CAM shortcut check (markers, devices, borders) | When Grad-CAM is built |
-| 7 | Under-18 images: exclude or keep | **Decision needed** |
+| 7 | Under-18 images: exclude or keep | **Kept**; adults-only result reported |
+| 8 | Sparse labels (Hernia, Pneumonia): drop or keep | **Kept** (all 14 labels) |

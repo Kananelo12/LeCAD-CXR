@@ -7,6 +7,13 @@ Thresholds come from the checkpoint (chosen on validation during training)
 and are applied unchanged. The test split is refused unless LECAD_ALLOW_TEST=1
 is set, and that should happen ONCE, for the final model, after every
 decision about architecture and hyperparameters has been made.
+
+Besides the overall result, the report breaks results down by subgroup (see
+docs/eda-summary.md):
+    PA / AP view   Edema is 11x more prevalent on AP films; a large PA/AP gap
+                   suggests the model is partly reading the view, not the lung
+    adults (18+)   the intended-use population; under-18 images are kept in
+                   training for comparability with published results
 """
 from __future__ import annotations
 
@@ -50,6 +57,20 @@ def main() -> None:
     metrics = evaluate(y, p, thresholds=ckpt["thresholds"])
     metrics.update(split=args.split, n_images=len(y), epoch=ckpt["epoch"])
 
+    # The loader does not shuffle eval splits, so row i of the frame is row i of y/p.
+    frame = loader.dataset.frame
+    groups = {
+        "view_PA": (frame["View Position"] == "PA").to_numpy(),
+        "view_AP": (frame["View Position"] == "AP").to_numpy(),
+        "adults_18_plus": (frame["Patient Age"] >= 18).to_numpy(),
+    }
+    metrics["subgroups"] = {
+        name: {"n_images": int(mask.sum()),
+               **evaluate(y[mask], p[mask], thresholds=ckpt["thresholds"])}
+        for name, mask in groups.items()
+        if mask.any()
+    }
+
     out = args.run / f"eval_{args.split}.json"
     out.write_text(json.dumps(metrics, indent=2))
 
@@ -60,6 +81,9 @@ def main() -> None:
             f"{name:<20}{m['n_pos']:>7}{m['auc']:>8.3f}"
             f"{m['sensitivity']:>8.3f}{m['specificity']:>8.3f}"
         )
+    print(f"\n{'subgroup':<20}{'images':>8}{'macro AUC':>11}")
+    for name, g in metrics["subgroups"].items():
+        print(f"{name:<20}{g['n_images']:>8}{g['macro_auc']:>11.4f}")
     print(f"\nWrote {out}")
 
 

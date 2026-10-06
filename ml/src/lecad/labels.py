@@ -32,5 +32,8 @@ LABEL_TO_IDX = {name: i for i, name in enumerate(LABELS)}
 NO_FINDING = "No Finding"
 
 # Train_val counts, for reference. Anything under ~1000 will not produce a
-# trustworthy per-class AUC; report it with a caveat or exclude it.
+# trustworthy per-class AUC. They are RETAINED, not dropped (decision
+# 2026-10-06, agreed with the supervisor): this is a multi-label problem with
+# one independent output per finding, so a sparse label does not displace the
+# others. Their results are reported with a caveat on precision.
 SPARSE_LABELS: tuple[str, ...] = ("Hernia", "Pneumonia", "Fibrosis")
