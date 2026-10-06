@@ -1,0 +1,67 @@
+"""Evaluate a trained checkpoint and write a metrics report.
+
+    python ml/scripts/evaluate.py --run <run_dir>                # validation
+    LECAD_ALLOW_TEST=1 python ml/scripts/evaluate.py --run <run_dir> --split test
+
+Thresholds come from the checkpoint (chosen on validation during training)
+and are applied unchanged. The test split is refused unless LECAD_ALLOW_TEST=1
+is set, and that should happen ONCE, for the final model, after every
+decision about architecture and hyperparameters has been made.
+"""
+from __future__ import annotations
+
+import argparse
+import json
+import sys
+from pathlib import Path
+
+sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
+
+import torch  # noqa: E402
+
+from lecad.data import build_loader  # noqa: E402
+from lecad.labels import LABELS  # noqa: E402
+from lecad.metrics import evaluate  # noqa: E402
+from lecad.models import build_model  # noqa: E402
+
+from train import predict  # noqa: E402
+
+
+def main() -> None:
+    ap = argparse.ArgumentParser()
+    ap.add_argument("--run", required=True, type=Path, help="run directory with best.pt")
+    ap.add_argument("--split", default="val", choices=("val", "test"))
+    ap.add_argument("--batch-size", type=int, default=64)
+    ap.add_argument("--num-workers", type=int, default=4)
+    ap.add_argument("--limit", type=int)
+    args = ap.parse_args()
+
+    ckpt = torch.load(args.run / "best.pt", map_location="cpu", weights_only=False)
+    if tuple(ckpt["labels"]) != LABELS:
+        raise ValueError("Checkpoint label order differs from lecad.labels.LABELS.")
+
+    device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+    model = build_model(ckpt["architecture"], pretrained=False)
+    model.load_state_dict(ckpt["model"])
+    model.to(device)
+
+    loader = build_loader(args.split, args.batch_size, args.num_workers, limit=args.limit)
+    y, p = predict(model, loader, device, amp=device.type == "cuda")
+    metrics = evaluate(y, p, thresholds=ckpt["thresholds"])
+    metrics.update(split=args.split, n_images=len(y), epoch=ckpt["epoch"])
+
+    out = args.run / f"eval_{args.split}.json"
+    out.write_text(json.dumps(metrics, indent=2))
+
+    print(f"{args.split}: {len(y)} images, macro AUC {metrics['macro_auc']:.4f}\n")
+    print(f"{'label':<20}{'n_pos':>7}{'AUC':>8}{'sens':>8}{'spec':>8}")
+    for name, m in metrics["per_class"].items():
+        print(
+            f"{name:<20}{m['n_pos']:>7}{m['auc']:>8.3f}"
+            f"{m['sensitivity']:>8.3f}{m['specificity']:>8.3f}"
+        )
+    print(f"\nWrote {out}")
+
+
+if __name__ == "__main__":
+    main()

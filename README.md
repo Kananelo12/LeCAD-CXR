@@ -20,6 +20,8 @@ LeCAD-CXR/
 │   │   ├── image_index.py  filename -> path across the 12 dataset shards
 │   │   ├── splits.py       patient-level train/val split; test quarantine
 │   │   ├── data.py         PyTorch dataset and loaders
+│   │   ├── models.py       DenseNet-121 / ResNet-50 / EfficientNet-B0 factory
+│   │   ├── metrics.py      per-class AUC, PR-AUC, thresholds chosen on val
 │   │   └── serving/        FastAPI (not built yet)
 │   ├── scripts/            one-shot entry points
 │   ├── configs/            experiment configs
@@ -59,7 +61,24 @@ python ml/scripts/make_dev_subset.py --n 2000 --out D:/Work/cxr-dev
 # then set LECAD_DATA_ROOT=D:/Work/cxr-dev in .env
 ```
 
-Real training runs on Kaggle, where the dataset is already mounted.
+Before pushing training changes, prove the loop runs on CPU in a couple of
+minutes (tiny, random weights, no download):
+
+```bash
+python ml/scripts/train.py --config ml/configs/baseline.yaml --limit 64 --epochs 1 --num-workers 0 --no-pretrained
+```
+
+## Training on Kaggle
+
+Real training runs on Kaggle, where the dataset is already mounted and a
+GPU is free. Upload `ml/notebooks/kaggle_train.ipynb` as a Kaggle notebook;
+it clones this repo and calls the same `train.py` / `evaluate.py`.
+
+**Step-by-step walkthrough, from account setup to the final test
+evaluation: [docs/training-guide.md](docs/training-guide.md).**
+
+The test set is refused unless `LECAD_ALLOW_TEST=1` is set for a single
+command, once, for the final model. Never set it in `.env`.
 
 ## Ground rules
 

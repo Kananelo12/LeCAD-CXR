@@ -25,6 +25,7 @@ def _detect_data_root() -> Path:
 
     for candidate in (
         Path("/kaggle/input/data"),           # Kaggle: NIH Chest X-rays
+        Path("/kaggle/input/nih-chest-xrays/data"),  # Kaggle, newer mount path
         Path("D:/Work/archive"),              # this laptop
         Path.home() / "data" / "chestxray14",
     ):

@@ -14,6 +14,7 @@ changes.
 """
 from __future__ import annotations
 
+import hashlib
 import json
 import os
 from functools import lru_cache
@@ -21,7 +22,12 @@ from pathlib import Path
 
 from .config import PATHS
 
-_CACHE_NAME = "image_index.json"
+
+def _cache_name() -> str:
+    """One cache per data root, so switching between the full archive and
+    the dev subset can never serve a stale index."""
+    key = hashlib.sha1(str(PATHS.data_root.resolve()).encode()).hexdigest()[:10]
+    return f"image_index_{key}.json"
 
 
 def _scan(data_root: Path) -> dict[str, str]:
@@ -59,7 +65,7 @@ def _scan(data_root: Path) -> dict[str, str]:
 @lru_cache(maxsize=1)
 def get_index(refresh: bool = False) -> dict[str, str]:
     """Filename -> relative path. Cached on disk; scanning is the slow part."""
-    cache_file = PATHS.cache / _CACHE_NAME
+    cache_file = PATHS.cache / _cache_name()
 
     if cache_file.exists() and not refresh:
         with cache_file.open(encoding="utf-8") as fh:
@@ -67,8 +73,10 @@ def get_index(refresh: bool = False) -> dict[str, str]:
 
     index = _scan(PATHS.data_root)
     PATHS.cache.mkdir(parents=True, exist_ok=True)
-    with cache_file.open("w", encoding="utf-8") as fh:
+    tmp = cache_file.with_suffix(".tmp")
+    with tmp.open("w", encoding="utf-8") as fh:
         json.dump(index, fh)
+    tmp.replace(cache_file)  # atomic: a reader never sees a half-written file
     return index
 
 
@@ -80,5 +88,5 @@ def resolve(filename: str) -> Path:
     except KeyError as exc:
         raise KeyError(
             f"{filename} is not in the dataset at {PATHS.data_root}. "
-            "If you recently changed LECAD_DATA_ROOT, delete ml/.cache/ and retry."
+            "If images were added under this root, delete ml/.cache/ and retry."
         ) from exc

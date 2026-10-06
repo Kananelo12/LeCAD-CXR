@@ -1,13 +1,15 @@
 """PyTorch dataset over ChestX-ray14."""
 from __future__ import annotations
 
+import os
+
 import numpy as np
 import pandas as pd
 import torch
 from PIL import Image
 from torch.utils.data import DataLoader, Dataset
 
-from .image_index import resolve
+from .image_index import get_index, resolve
 from .labels import LABELS
 from .splits import load_split_frame
 from .transforms import build_transform
@@ -24,7 +26,13 @@ class ChestXray14(Dataset):
     def __init__(self, frame: pd.DataFrame, stage: str = "eval"):
         self.frame = frame.reset_index(drop=True)
         self.transform = build_transform(stage)
-        self.targets = self.frame[list(LABELS)].to_numpy(dtype=np.float32)
+        # Build the filename index here, in the main process. Left to the
+        # DataLoader workers, each would scan the dataset and write the cache
+        # file at the same time.
+        get_index()
+        # copy=True: pandas 3 hands back read-only arrays, which torch cannot
+        # safely wrap with from_numpy.
+        self.targets = self.frame[list(LABELS)].to_numpy(dtype=np.float32, copy=True)
 
     def __len__(self) -> int:
         return len(self.frame)
@@ -39,9 +47,14 @@ class ChestXray14(Dataset):
 def build_dataset(split: str, stage: str | None = None, limit: int | None = None):
     """split: 'train' | 'val' | 'test'.
 
-    Guard rail: asking for 'test' raises unless you pass allow_test=True via
+    Guard rail: asking for 'test' raises unless LECAD_ALLOW_TEST=1 is set in
     the environment. The test set is quarantined until final evaluation.
     """
+    if split == "test" and os.getenv("LECAD_ALLOW_TEST") != "1":
+        raise PermissionError(
+            "The test set is quarantined. It is opened once, for the final "
+            "evaluation, by setting LECAD_ALLOW_TEST=1 for that single run."
+        )
     if stage is None:
         stage = "train" if split == "train" else "eval"
 
