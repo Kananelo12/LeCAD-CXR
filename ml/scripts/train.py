@@ -27,18 +27,18 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-import numpy as np  # noqa: E402
-import torch  # noqa: E402
-import yaml  # noqa: E402
-from torch import nn  # noqa: E402
-from tqdm import tqdm  # noqa: E402
+import numpy as np
+import torch
+import yaml
+from torch import nn
+from tqdm import tqdm
 
-import lecad  # noqa: E402
-from lecad.config import IMAGE_SIZE, PATHS, SEED  # noqa: E402
-from lecad.data import build_loader, positive_weights  # noqa: E402
-from lecad.labels import LABELS  # noqa: E402
-from lecad.metrics import evaluate  # noqa: E402
-from lecad.models import build_model  # noqa: E402
+import lecad
+from lecad.config import IMAGE_SIZE, PATHS, SEED
+from lecad.data import build_loader, positive_weights
+from lecad.labels import LABELS
+from lecad.metrics import evaluate
+from lecad.models import build_model
 
 
 def parse_args() -> argparse.Namespace:

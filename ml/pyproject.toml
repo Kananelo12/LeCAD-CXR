@@ -32,3 +32,26 @@ where = ["src"]
 [tool.ruff]
 line-length = 96
 target-version = "py310"
+
+# Explicit rule set, so lint results do not change when ruff's defaults do.
+[tool.ruff.lint]
+select = [
+    "E", "W",  # pycodestyle
+    "F",       # pyflakes: unused names, undefined names
+    "I",       # import sorting
+    "B",       # bugbear: likely bugs
+    "UP",      # modern syntax for the target Python
+    "C4",      # comprehensions
+    "SIM",     # simplifications
+    "FURB",    # refurb
+    "RUF",     # ruff-specific
+]
+
+[tool.ruff.lint.isort]
+known-first-party = ["lecad"]
+# evaluate.py imports predict() from the sibling train.py script.
+known-local-folder = ["train"]
+
+[tool.ruff.lint.per-file-ignores]
+# A notebook's setup cell locates the repo and extends sys.path before importing.
+"*.ipynb" = ["E402"]

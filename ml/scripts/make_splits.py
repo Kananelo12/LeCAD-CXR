@@ -12,7 +12,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from lecad.splits import write_splits  # noqa: E402
+from lecad.splits import write_splits
 
 
 def main() -> None:

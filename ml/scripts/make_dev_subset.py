@@ -18,9 +18,9 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from lecad.image_index import resolve  # noqa: E402
-from lecad.labels import LABELS  # noqa: E402
-from lecad.splits import load_split_frame  # noqa: E402
+from lecad.image_index import resolve
+from lecad.labels import LABELS
+from lecad.splits import load_split_frame
 
 
 def main() -> None:

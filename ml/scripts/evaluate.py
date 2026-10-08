@@ -24,14 +24,14 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-import torch  # noqa: E402
+import torch
 
-from lecad.data import build_loader  # noqa: E402
-from lecad.labels import LABELS  # noqa: E402
-from lecad.metrics import evaluate  # noqa: E402
-from lecad.models import build_model  # noqa: E402
+from lecad.data import build_loader
+from lecad.labels import LABELS
+from lecad.metrics import evaluate
+from lecad.models import build_model
 
-from train import predict  # noqa: E402
+from train import predict
 
 
 def main() -> None:

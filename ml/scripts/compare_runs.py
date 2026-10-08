@@ -11,8 +11,8 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-from lecad.config import PATHS  # noqa: E402
-from lecad.labels import LABELS  # noqa: E402
+from lecad.config import PATHS
+from lecad.labels import LABELS
 
 
 def main() -> None:

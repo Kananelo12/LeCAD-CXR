@@ -81,9 +81,9 @@ def make_patient_split(df: pd.DataFrame, seed: int = SEED) -> tuple[set[int], se
     shuffled = patients.copy()
     rng.shuffle(shuffled)
 
-    n_val = int(round(len(shuffled) * VAL_PATIENT_FRACTION))
-    val_patients = set(int(p) for p in shuffled[:n_val])
-    train_patients = set(int(p) for p in shuffled[n_val:])
+    n_val = round(len(shuffled) * VAL_PATIENT_FRACTION)
+    val_patients = {int(p) for p in shuffled[:n_val]}
+    train_patients = {int(p) for p in shuffled[n_val:]}
 
     assert not (train_patients & val_patients), "patient leaked across train/val"
     return train_patients, val_patients

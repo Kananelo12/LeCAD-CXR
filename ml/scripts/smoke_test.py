@@ -14,13 +14,13 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
-import torch  # noqa: E402
-from sklearn.metrics import roc_auc_score  # noqa: E402
-from torch import nn  # noqa: E402
+import torch
+from sklearn.metrics import roc_auc_score
+from torch import nn
 
-from lecad.config import PATHS  # noqa: E402
-from lecad.data import build_loader  # noqa: E402
-from lecad.labels import NUM_LABELS  # noqa: E402
+from lecad.config import PATHS
+from lecad.data import build_loader
+from lecad.labels import NUM_LABELS
 
 
 def main() -> None:
