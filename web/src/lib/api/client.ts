@@ -7,6 +7,13 @@ import {
   UserResponse,
 } from "./schemas";
 
+// In mock mode, requests wait until the MSW worker is intercepting, or the
+// first ones would reach the dev server and 404. Resolved at once otherwise.
+let ready: Promise<unknown> = Promise.resolve();
+export function holdRequestsUntil(promise: Promise<unknown>) {
+  ready = promise;
+}
+
 export class ApiError extends Error {
   constructor(
     readonly status: number,
@@ -24,6 +31,7 @@ async function request<T extends z.ZodType>(
   schema: T | null,
   init?: RequestInit,
 ): Promise<z.infer<T>> {
+  await ready;
   const res = await fetch(`/api${path}`, { credentials: "same-origin", ...init });
 
   if (!res.ok) {
