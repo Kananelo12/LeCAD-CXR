@@ -87,6 +87,11 @@ anyway before committing.
 2. Click your profile picture (top right) → **Settings**.
 3. Find **Phone verification** and complete it. Without this, Kaggle won't
    give you a GPU or internet access in notebooks, and you need both.
+   **ID verification does not replace it.** As of October 2026, an
+   ID-verified account still cannot turn on Internet, and the Accelerator
+   (GPU) option stays hidden until the phone is verified. If phone
+   verification fails with "too many requests", stop retrying and contact
+   Kaggle support (kaggle.com/contact).
 
 ### B2. A GitHub token, so Kaggle can read your private repo
 

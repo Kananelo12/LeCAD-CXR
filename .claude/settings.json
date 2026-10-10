@@ -1,0 +1,14 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(.venv/Scripts/python.exe -m ruff check ml --statistics)",
+      "Bash(.venv/Scripts/python.exe -m ruff check ml --output-format concise)",
+      "Bash(.venv/Scripts/python.exe -m ruff check ml --fix --quiet)",
+      "Bash(git push *)",
+      "Bash(echo \"- [Kaggle blocked → Colab fallback]\\(kaggle-blocked-colab-fallback.md\\) — waiting on Kaggle support \\(2026-10-08\\); if no reply, build Colab shrink-once plan\" >> \"/c/Users/Joel Kananelo/.claude/projects/d--Work-LeCAD-CXR/memory/MEMORY.md\")"
+    ],
+    "additionalDirectories": [
+      "C:\\Users\\Joel Kananelo\\.claude\\projects\\d--Work-LeCAD-CXR\\memory"
+    ]
+  }
+}
