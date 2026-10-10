@@ -1,0 +1,91 @@
+@import "tailwindcss";
+
+/* Design tokens. Components use the Tailwind names (bg-surface, text-muted,
+   border-line, …), never raw colours, so dark mode is one block below.
+
+   Band colours deliberately avoid red/green: "flagged" is a prompt to look,
+   not a diagnosis, and the UI never relies on colour alone (each band also
+   has an icon and text). */
+:root {
+  --bg: #f6f7f9;
+  --surface: #ffffff;
+  --surface-2: #eef1f4;
+  --text: #16202a;
+  --muted: #5b6876;
+  --line: #d8dee5;
+  --accent: #0f6b74;
+  --accent-text: #ffffff;
+  --focus: #1a73e8;
+  --danger: #b42318;
+
+  --flag: #9a4a00;
+  --flag-bg: #fff1e0;
+  --near: #6b5800;
+  --near-bg: #fbf6d9;
+  --clear: #4a5866;
+  --clear-bg: #eef1f4;
+
+  --notice: #4a3a00;
+  --notice-bg: #fff6cc;
+  --notice-line: #e9d27a;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --bg: #0d1117;
+    --surface: #151b23;
+    --surface-2: #1d2530;
+    --text: #e6edf3;
+    --muted: #9aa7b4;
+    --line: #2d3742;
+    --accent: #3fb6c0;
+    --accent-text: #06272a;
+    --focus: #79b8ff;
+    --danger: #ff8a7a;
+
+    --flag: #ffb366;
+    --flag-bg: #3a2410;
+    --near: #e8d36a;
+    --near-bg: #2e2a10;
+    --clear: #a9b6c3;
+    --clear-bg: #1d2530;
+
+    --notice: #f3dc8a;
+    --notice-bg: #2b2408;
+    --notice-line: #5c4d14;
+  }
+}
+
+@theme inline {
+  --color-bg: var(--bg);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-text: var(--text);
+  --color-muted: var(--muted);
+  --color-line: var(--line);
+  --color-accent: var(--accent);
+  --color-accent-text: var(--accent-text);
+  --color-focus: var(--focus);
+  --color-danger: var(--danger);
+  --color-flag: var(--flag);
+  --color-flag-bg: var(--flag-bg);
+  --color-near: var(--near);
+  --color-near-bg: var(--near-bg);
+  --color-clear: var(--clear);
+  --color-clear-bg: var(--clear-bg);
+  --color-notice: var(--notice);
+  --color-notice-bg: var(--notice-bg);
+  --color-notice-line: var(--notice-line);
+  --font-sans: var(--font-geist-sans);
+  --font-mono: var(--font-geist-mono);
+}
+
+body {
+  background: var(--bg);
+  color: var(--text);
+}
+
+:focus-visible {
+  outline: 2px solid var(--focus);
+  outline-offset: 2px;
+}

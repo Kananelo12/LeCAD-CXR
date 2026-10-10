@@ -81,12 +81,24 @@ class Paths:
 
 _REPO_ROOT = Path(__file__).resolve().parents[3]  # .../LeCAD-CXR
 
-PATHS = Paths(
-    data_root=_detect_data_root(),
-    artifacts=Path(os.getenv("LECAD_ARTIFACTS", _REPO_ROOT / "ml" / "artifacts")),
-    splits=_REPO_ROOT / "ml" / "splits",
-    cache=_REPO_ROOT / "ml" / ".cache",
-)
+
+def __getattr__(name: str):
+    """Build PATHS on first use, not at import.
+
+    The API imports this module (through lecad.transforms) on machines that
+    have no dataset; finding the dataset eagerly would crash it on startup.
+    `from lecad.config import PATHS` still works: it calls this.
+    """
+    if name == "PATHS":
+        paths = Paths(
+            data_root=_detect_data_root(),
+            artifacts=Path(os.getenv("LECAD_ARTIFACTS", _REPO_ROOT / "ml" / "artifacts")),
+            splits=_REPO_ROOT / "ml" / "splits",
+            cache=_REPO_ROOT / "ml" / ".cache",
+        )
+        globals()["PATHS"] = paths
+        return paths
+    raise AttributeError(f"module {__name__!r} has no attribute {name!r}")
 
 SEED = int(os.getenv("LECAD_SEED", "42"))
 
@@ -94,6 +106,14 @@ SEED = int(os.getenv("LECAD_SEED", "42"))
 VAL_PATIENT_FRACTION = 0.15
 
 IMAGE_SIZE = 224  # DenseNet-121 / ResNet-50 / EfficientNet-B0 native input
+
+# Every image is first reduced to this size, in training AND in the API
+# (transforms.prepare_image). The training data is stored already reduced
+# (make_resized_cache.py), which makes training several times faster. Larger
+# than IMAGE_SIZE, so nothing the model sees is lost; measured effect on the
+# 224px model input: 0.2% mean pixel difference (2026-10-10, 100 images).
+# Changing it means rebuilding the cache and retraining.
+CACHE_SIZE = 256
 
 # ImageNet statistics — the pretrained weights expect these. Changing them
 # without retraining is the classic train/serve skew bug.

@@ -22,13 +22,13 @@ LeCAD-CXR/
 │   │   ├── data.py         PyTorch dataset and loaders
 │   │   ├── models.py       DenseNet-121 / ResNet-50 / EfficientNet-B0 factory
 │   │   ├── metrics.py      per-class AUC, PR-AUC, thresholds chosen on val
-│   │   └── serving/        FastAPI (not built yet)
+│   │   └── serving/        FastAPI: auth, /predict + Grad-CAM, audit log
 │   ├── scripts/            one-shot entry points
 │   ├── configs/            experiment configs
 │   ├── splits/             generated split — COMMITTED, part of the record
 │   └── notebooks/          EDA and result plots only
-├── web/                    Next.js frontend (not built yet)
-└── docs/                   model card, datasheet, decision records
+├── web/                    Next.js frontend
+└── docs/                   model card, API contract, decision records
 ```
 
 **The dataset is not in this repository and never will be.** It lives at
@@ -68,11 +68,15 @@ minutes (tiny, random weights, no download):
 python ml/scripts/train.py --config ml/configs/baseline.yaml --limit 64 --epochs 1 --num-workers 0 --no-pretrained
 ```
 
-## Training on Kaggle
+## Training on a GPU (Lightning AI)
 
-Real training runs on Kaggle, where the dataset is already mounted and a
-GPU is free. Upload `ml/notebooks/kaggle_train.ipynb` as a Kaggle notebook;
-it clones this repo and calls the same `train.py` / `evaluate.py`.
+Real training runs on a T4 GPU in a Lightning AI Studio. The NIH images are
+downloaded there once and stored at 256 x 256 by
+`ml/scripts/make_resized_cache.py`, using the same `prepare_image()` step
+the API applies to uploads. That's about 3.7 GB instead of 42 GB, and much
+faster to train from. The same `train.py` / `evaluate.py` then run unchanged.
+Kaggle also works, if its GPU is available to you
+(`ml/notebooks/kaggle_train.ipynb`).
 
 **Step-by-step walkthrough, from account setup to the final test
 evaluation: [docs/training-guide.md](docs/training-guide.md).**

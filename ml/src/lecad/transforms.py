@@ -12,11 +12,25 @@ from __future__ import annotations
 
 from typing import Literal
 
+from PIL import Image
 from torchvision import transforms
+from torchvision.transforms import functional as TF
 
-from .config import IMAGE_SIZE, IMAGENET_MEAN, IMAGENET_STD
+from .config import CACHE_SIZE, IMAGE_SIZE, IMAGENET_MEAN, IMAGENET_STD
 
 Stage = Literal["train", "eval"]
+
+
+def prepare_image(img: Image.Image) -> Image.Image:
+    """The step before the transform, for a freshly opened file. Training
+    (data.py) and the API both call this, so both see the same pixels.
+
+    Greyscale, then CACHE_SIZE x CACHE_SIZE. The training cache
+    (make_resized_cache.py) stores exactly this output, and applying it
+    again to a cached image changes nothing, so a cached image and an
+    original upload reach the transform identically.
+    """
+    return TF.resize(img.convert("L"), [CACHE_SIZE, CACHE_SIZE])
 
 
 def build_transform(stage: Stage = "eval", image_size: int = IMAGE_SIZE):
@@ -45,8 +59,9 @@ def build_transform(stage: Stage = "eval", image_size: int = IMAGE_SIZE):
 
     return transforms.Compose(
         [
+            # Input is already CACHE_SIZE (prepare_image), about 1.14 x
+            # image_size: the margin the rotation and crop work within.
             transforms.Grayscale(num_output_channels=3),
-            transforms.Resize((int(image_size * 1.14), int(image_size * 1.14))),
             transforms.RandomRotation(degrees=7),
             transforms.RandomResizedCrop(
                 image_size, scale=(0.85, 1.0), ratio=(0.95, 1.05)

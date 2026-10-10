@@ -12,7 +12,7 @@ from torch.utils.data import DataLoader, Dataset
 from .image_index import get_index, resolve
 from .labels import LABELS
 from .splits import load_split_frame
-from .transforms import build_transform
+from .transforms import build_transform, prepare_image
 
 
 class ChestXray14(Dataset):
@@ -40,7 +40,7 @@ class ChestXray14(Dataset):
     def __getitem__(self, i: int):
         name = self.frame.at[i, "Image Index"]
         with Image.open(resolve(name)) as img:
-            tensor = self.transform(img.convert("L"))
+            tensor = self.transform(prepare_image(img))
         return tensor, torch.from_numpy(self.targets[i])
 
 
