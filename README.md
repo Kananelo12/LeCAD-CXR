@@ -27,8 +27,8 @@ LeCAD-CXR/
 │   ├── configs/            experiment configs
 │   ├── splits/             generated split — COMMITTED, part of the record
 │   └── notebooks/          EDA and result plots only
-├── web/                    Next.js frontend (not built yet)
-└── docs/                   model card, datasheet, decision records
+├── web/                    Next.js frontend (runs against a mock API until FastAPI exists)
+└── docs/                   model card, API contract, decision records
 ```
 
 **The dataset is not in this repository and never will be.** It lives at

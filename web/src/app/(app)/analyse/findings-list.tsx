@@ -1,5 +1,6 @@
 "use client";
 
+import { useEffect, useRef } from "react";
 import type { Band, Finding, Label, Prediction } from "@/lib/api/schemas";
 import { BAND_TEXT, labelName } from "@/lib/labels";
 
@@ -26,6 +27,11 @@ type Props = {
 };
 
 export function FindingsList({ prediction, selected, onSelect }: Props) {
+  // The upload form (and its focused button) is gone once results show;
+  // move focus here so keyboard and screen-reader users land on the result.
+  const summary = useRef<HTMLHeadingElement>(null);
+  useEffect(() => summary.current?.focus(), []);
+
   const byScore = [...prediction.findings].sort((a, b) => b.probability - a.probability);
   const group = (band: Band) => byScore.filter((f) => f.band === band);
   const flagged = group("above");
@@ -45,7 +51,7 @@ export function FindingsList({ prediction, selected, onSelect }: Props) {
   return (
     <div className="space-y-6">
       <div>
-        <h2 className="text-lg font-semibold">
+        <h2 ref={summary} tabIndex={-1} className="text-lg font-semibold">
           {flagged.length === 0
             ? "No findings flagged for review"
             : `${flagged.length} ${flagged.length === 1 ? "finding" : "findings"} flagged for review`}

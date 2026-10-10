@@ -11,3 +11,8 @@ afterEach(() => {
   resetMockState();
 });
 afterAll(() => server.close());
+
+// jsdom has no object URLs or canvas; the UI tolerates both being absent.
+URL.createObjectURL ??= () => "blob:test";
+URL.revokeObjectURL ??= () => {};
+HTMLCanvasElement.prototype.getContext = (() => null) as never;

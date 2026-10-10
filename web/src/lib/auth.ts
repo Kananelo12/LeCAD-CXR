@@ -1,7 +1,6 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { useRouter } from "next/navigation";
 import { api } from "./api/client";
 
 export const ME_KEY = ["auth", "me"] as const;
@@ -20,19 +19,18 @@ export function useLogin() {
 }
 
 export function useLogout() {
-  const qc = useQueryClient();
-  const router = useRouter();
   return useMutation({
     mutationFn: api.logout,
-    onSettled: () => {
-      // Drop everything cached for this user, including history.
-      qc.clear();
-      router.replace("/login");
-    },
+    // A full page load, not a client navigation: it discards everything held
+    // in memory for this user (cached history, the image preview), which
+    // matters on a shared workstation. Clearing the cache in place instead
+    // would make the still-mounted shell refetch /auth/me and race this.
+    onSettled: () => window.location.replace("/login"),
   });
 }
 
 // Only same-site paths, so ?next= cannot be used to bounce users elsewhere.
+// Browsers read "/\host" like "//host", so backslashes are refused too.
 export function safeNext(next: string | null): string {
-  return next && next.startsWith("/") && !next.startsWith("//") ? next : "/analyse";
+  return next && /^\/(?![/\\])/.test(next) ? next : "/analyse";
 }
