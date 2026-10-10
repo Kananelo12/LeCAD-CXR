@@ -148,7 +148,8 @@ export function mockPrediction(sha256: string, now = new Date()): Prediction {
 
   const findings: Finding[] = LABELS.map((label) => {
     const t = THRESHOLDS[label];
-    const p = flagged.has(label) ? t + rand() * (1 - t) * 0.6 : t * rand() * 0.95;
+    // Squared so most unflagged scores sit well below threshold, as with a real model.
+    const p = flagged.has(label) ? t + rand() * (1 - t) * 0.6 : t * rand() ** 2 * 0.95;
     const probability = Math.round(p * 10_000) / 10_000;
     return {
       label,
