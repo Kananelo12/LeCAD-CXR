@@ -177,16 +177,20 @@ Studio's file panel (left side) so it lands in your Studio folder, then:
 mkdir -p ~/.kaggle && mv ~/kaggle.json ~/.kaggle/ && chmod 600 ~/.kaggle/kaggle.json
 ```
 
-**If B3 showed a token on screen instead:**
+**If B3 showed a token on screen instead** (it starts with `KGAT_`), save it
+where the Kaggle tool looks for it. Replace `YOUR_TOKEN` with your token:
 
 ```bash
-export KAGGLE_API_TOKEN=paste-the-token-here
+mkdir -p ~/.kaggle && echo YOUR_TOKEN > ~/.kaggle/access_token && chmod 600 ~/.kaggle/access_token
 ```
+
+Saving it to a file, rather than `export KAGGLE_API_TOKEN=...`, means it
+still works after the terminal is closed or the Studio restarts.
 
 Then download and unpack. About 42 GB, so this takes a while:
 
 ```bash
-pip install -q kaggle
+pip install -q -U kaggle
 kaggle datasets download -d nih-chest-xrays/data -p ~/data/nih-raw
 cd ~/data/nih-raw && unzip -q data.zip && rm data.zip && cd ~/LeCAD-CXR
 ls ~/data/nih-raw
