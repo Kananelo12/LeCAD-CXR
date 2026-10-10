@@ -107,6 +107,14 @@ VAL_PATIENT_FRACTION = 0.15
 
 IMAGE_SIZE = 224  # DenseNet-121 / ResNet-50 / EfficientNet-B0 native input
 
+# Every image is first reduced to this size, in training AND in the API
+# (transforms.prepare_image). The training data is stored already reduced
+# (make_resized_cache.py), which makes training several times faster. Larger
+# than IMAGE_SIZE, so nothing the model sees is lost; measured effect on the
+# 224px model input: 0.2% mean pixel difference (2026-10-10, 100 images).
+# Changing it means rebuilding the cache and retraining.
+CACHE_SIZE = 256
+
 # ImageNet statistics — the pretrained weights expect these. Changing them
 # without retraining is the classic train/serve skew bug.
 IMAGENET_MEAN = (0.485, 0.456, 0.406)

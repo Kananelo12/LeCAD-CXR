@@ -68,27 +68,21 @@ minutes (tiny, random weights, no download):
 python ml/scripts/train.py --config ml/configs/baseline.yaml --limit 64 --epochs 1 --num-workers 0 --no-pretrained
 ```
 
-## Training on Kaggle
+## Training on a GPU (Lightning AI)
 
-Real training runs on Kaggle, where the dataset is already mounted and a
-GPU is free. Upload `ml/notebooks/kaggle_train.ipynb` as a Kaggle notebook;
-it clones this repo and calls the same `train.py` / `evaluate.py`.
+Real training runs on a T4 GPU in a Lightning AI Studio. The NIH images are
+downloaded there once and stored at 256 x 256 by
+`ml/scripts/make_resized_cache.py`, using the same `prepare_image()` step
+the API applies to uploads. That's about 3.7 GB instead of 42 GB, and much
+faster to train from. The same `train.py` / `evaluate.py` then run unchanged.
+Kaggle also works, if its GPU is available to you
+(`ml/notebooks/kaggle_train.ipynb`).
 
 **Step-by-step walkthrough, from account setup to the final test
 evaluation: [docs/training-guide.md](docs/training-guide.md).**
 
 The test set is refused unless `LECAD_ALLOW_TEST=1` is set for a single
 command, once, for the final model. Never set it in `.env`.
-
-## Running the app
-
-The FastAPI service (`ml/src/lecad/serving/`) and the web app (`web/`)
-run together on the laptop. Before a model is trained, the API uses a
-clearly labelled fake model so the whole system can be exercised.
-
-**Step-by-step, from database to sign-in:
-[docs/serving-guide.md](docs/serving-guide.md).** The API is specified in
-[docs/api-contract.md](docs/api-contract.md).
 
 ## Ground rules
 
