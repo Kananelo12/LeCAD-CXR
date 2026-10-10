@@ -28,6 +28,7 @@ Change this file, the schemas and the FastAPI models together, in one commit.
 | 413 | Upload larger than 10 MB. |
 | 415 | Upload is not PNG or JPEG. |
 | 422 | Request is malformed, or `scope_confirmed` was not `true`. |
+| 429 | Too many failed sign-ins for this username (5 in 15 minutes). |
 
 ## Authentication
 
@@ -49,7 +50,11 @@ endpoint. See `docs/decisions/0002-frontend.md`.
 
 Body `{"username": "...", "password": "..."}`. On success sets the cookie
 and returns `{"user": User}`. Wrong credentials: **401** with a generic
-detail that does not say which field was wrong.
+detail that does not say which field was wrong. After 5 failures for one
+username within 15 minutes: **429** until the window passes.
+
+The session lasts 30 minutes and is renewed by any authenticated request
+made after half of that, so an idle session ends and an active one does not.
 
 ### `POST /auth/logout`
 
@@ -173,4 +178,5 @@ Read from the served checkpoint (`architecture`, `image_size`,
 }
 ```
 
-`per_class` has all 14 labels. Any metric may be `null`.
+`per_class` has all 14 labels. Any metric may be `null`, and so may
+`n_images` (e.g. the development fake model, which has no validation data).

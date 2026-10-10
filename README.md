@@ -22,12 +22,12 @@ LeCAD-CXR/
 │   │   ├── data.py         PyTorch dataset and loaders
 │   │   ├── models.py       DenseNet-121 / ResNet-50 / EfficientNet-B0 factory
 │   │   ├── metrics.py      per-class AUC, PR-AUC, thresholds chosen on val
-│   │   └── serving/        FastAPI (not built yet)
+│   │   └── serving/        FastAPI: auth, /predict + Grad-CAM, audit log
 │   ├── scripts/            one-shot entry points
 │   ├── configs/            experiment configs
 │   ├── splits/             generated split — COMMITTED, part of the record
 │   └── notebooks/          EDA and result plots only
-├── web/                    Next.js frontend (runs against a mock API until FastAPI exists)
+├── web/                    Next.js frontend
 └── docs/                   model card, API contract, decision records
 ```
 
@@ -79,6 +79,16 @@ evaluation: [docs/training-guide.md](docs/training-guide.md).**
 
 The test set is refused unless `LECAD_ALLOW_TEST=1` is set for a single
 command, once, for the final model. Never set it in `.env`.
+
+## Running the app
+
+The FastAPI service (`ml/src/lecad/serving/`) and the web app (`web/`)
+run together on the laptop. Before a model is trained, the API uses a
+clearly labelled fake model so the whole system can be exercised.
+
+**Step-by-step, from database to sign-in:
+[docs/serving-guide.md](docs/serving-guide.md).** The API is specified in
+[docs/api-contract.md](docs/api-contract.md).
 
 ## Ground rules
 
