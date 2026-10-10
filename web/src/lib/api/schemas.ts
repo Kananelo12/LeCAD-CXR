@@ -98,7 +98,7 @@ export const ModelInfo = z.object({
   architecture: z.string(),
   image_size: z.number().int(),
   validation: z.object({
-    n_images: z.number().int(),
+    n_images: z.number().int().nullable(),
     macro_auc: Metric,
     per_class: z.record(Label, ClassMetrics),
   }),

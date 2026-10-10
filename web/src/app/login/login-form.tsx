@@ -23,8 +23,9 @@ export function LoginForm() {
     login.mutate({ username, password }, { onSuccess: () => router.replace(next) });
   }
 
+  // 401 and 429 carry a message meant for the user; anything else does not.
   const error = login.error
-    ? login.error instanceof ApiError && login.error.status === 401
+    ? login.error instanceof ApiError && [401, 429].includes(login.error.status)
       ? login.error.message
       : "Could not reach the server. Try again."
     : null;

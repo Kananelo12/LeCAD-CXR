@@ -6,17 +6,21 @@ const PNG = Buffer.from(
   "base64",
 );
 
+// The mock's account by default; set these when running against FastAPI.
+const USERNAME = process.env.E2E_USERNAME ?? "clinician";
+const PASSWORD = process.env.E2E_PASSWORD ?? "demo";
+
 test("sign in, analyse an image, and find it in history", async ({ page }) => {
   await page.goto("/history");
   await expect(page).toHaveURL(/\/login\?next=%2Fhistory$/);
   await expect(page.getByRole("note").first()).toContainText("not a medical device");
 
-  await page.getByLabel("Username").fill("clinician");
+  await page.getByLabel("Username").fill(USERNAME);
   await page.getByLabel("Password").fill("wrong");
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page.getByRole("alert").filter({ hasText: "Incorrect username or password" })).toBeVisible();
 
-  await page.getByLabel("Password").fill("demo");
+  await page.getByLabel("Password").fill(PASSWORD);
   await page.getByRole("button", { name: "Sign in" }).click();
   await expect(page).toHaveURL(/\/history$/);
   await expect(page.getByText("You have not analysed any images yet.")).toBeVisible();

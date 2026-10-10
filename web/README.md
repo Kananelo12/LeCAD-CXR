@@ -44,7 +44,8 @@ bottom-right corner shows it is on. The mock:
 
 ### Real API
 
-Once FastAPI is running (say on port 8000), create `web/.env.local`:
+Start FastAPI first ([docs/serving-guide.md](../docs/serving-guide.md),
+steps 1–5), then create `web/.env.local`:
 
 ```bash
 API_URL=http://localhost:8000

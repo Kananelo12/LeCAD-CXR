@@ -24,9 +24,11 @@ export function ModelMetrics() {
     <section className="space-y-3">
       <h2 className="text-lg font-semibold">Validation results</h2>
       <p className="text-sm text-muted">
-        Model <span className="font-mono">{version}</span> ({architecture}), measured on{" "}
-        {validation.n_images.toLocaleString()} validation images. Macro AUC{" "}
-        {fmt(validation.macro_auc, 3)}. AUC ranges from 0.5 (chance) to 1 (perfect).
+        Model <span className="font-mono">{version}</span> ({architecture})
+        {validation.n_images !== null &&
+          `, measured on ${validation.n_images.toLocaleString()} validation images`}
+        . Macro AUC {fmt(validation.macro_auc, 3)}. AUC ranges from 0.5 (chance) to 1
+        (perfect).
       </p>
       <div className="overflow-x-auto rounded-lg border border-line bg-surface">
         <table className="w-full text-left text-sm">

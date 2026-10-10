@@ -1,6 +1,7 @@
 import { defineConfig, devices } from "@playwright/test";
 
-// End-to-end against the dev server with the MSW mocks (API_URL unset).
+// End-to-end against the dev server: with the MSW mocks by default, or
+// against a running FastAPI when API_URL is set (see web/README.md).
 const PORT = 3200;
 
 export default defineConfig({
@@ -12,6 +13,6 @@ export default defineConfig({
     url: `http://localhost:${PORT}/login`,
     reuseExistingServer: !process.env.CI,
     timeout: 120_000,
-    env: { API_URL: "" },
+    env: { API_URL: process.env.API_URL ?? "" },
   },
 });
