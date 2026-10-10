@@ -12,11 +12,18 @@ from __future__ import annotations
 
 from typing import Literal
 
+from PIL import Image
 from torchvision import transforms
 
 from .config import IMAGE_SIZE, IMAGENET_MEAN, IMAGENET_STD
 
 Stage = Literal["train", "eval"]
+
+
+def prepare_image(img: Image.Image) -> Image.Image:
+    """The step before the transform, for a freshly opened file. Training
+    (data.py) and the API both call this, so both see the same pixels."""
+    return img.convert("L")
 
 
 def build_transform(stage: Stage = "eval", image_size: int = IMAGE_SIZE):

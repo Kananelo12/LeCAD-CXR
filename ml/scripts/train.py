@@ -176,6 +176,7 @@ def main() -> None:
 
         y, p = predict(model, val_loader, device, amp)
         metrics = evaluate(y, p)
+        metrics["n_images"] = len(y)  # the API reports it (GET /model)
         record = {
             "epoch": epoch,
             "train_loss": running / max(seen, 1),
