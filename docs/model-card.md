@@ -76,6 +76,91 @@ and AP-only AUCs, since within one view the shortcut cannot help.
 - Small within-view counts make some cells unreliable: Edema PA n=30,
   Fibrosis AP n=19, Hernia AP n=2.
 
+### Run 2: ResNet-50 (2026-10-11)
+
+| | |
+|---|---|
+| Run | `resnet50-20261011-030417` |
+| Code | commit `37c0a99`, config `ml/configs/resnet50.yaml` |
+| Setup | As run 1, plus early stopping (patience 3) |
+| Best epoch | **5**; stopped after epoch 8. 0.96 h on 1 × T4, ~7 min/epoch |
+| **Macro AUC** | **0.8274** (macro PR-AUC 0.240, macro F1 0.203) |
+| Adults 18+ / PA / AP | 0.8259 / 0.8279 / 0.7679 |
+
+### Run 3: EfficientNet-B0 (2026-10-11)
+
+| | |
+|---|---|
+| Run | `efficientnet-b0-20261011-041329` |
+| Code | commit `37c0a99`, config `ml/configs/efficientnet_b0.yaml` |
+| Setup | As run 1, plus early stopping (patience 3) |
+| Best epoch | **4**; stopped after epoch 7. 0.92 h on 1 × T4, ~8 min/epoch |
+| **Macro AUC** | **0.8274** (macro PR-AUC 0.225, macro F1 0.192) |
+| Adults 18+ / PA / AP | 0.8259 / 0.8234 / **0.7981** |
+
+Early stopping does not change what run 1 would have produced: the
+learning-rate schedule spans 15 epochs either way, and run 1 peaked at
+epoch 4, before any stop would have triggered. The three runs are
+therefore comparable.
+
+### Architecture comparison (validation)
+
+| | DenseNet-121 | ResNet-50 | EfficientNet-B0 |
+|---|---:|---:|---:|
+| **Macro AUC** | **0.8297** | 0.8274 | 0.8274 |
+| Macro PR-AUC | **0.247** | 0.240 | 0.225 |
+| PA films | **0.8291** | 0.8279 | 0.8234 |
+| AP films | 0.7812 | 0.7679 | **0.7981** |
+| PA − AP gap | 0.048 | 0.060 | **0.025** |
+| Adults 18+ | **0.8286** | 0.8259 | 0.8259 |
+| Weights file | 28 MB | 94 MB | **16 MB** |
+| Best epoch / training time | 4 / 2.1 h* | 5 / 1.0 h | 4 / 0.9 h |
+
+\* run 1 trained all 15 epochs; with early stopping it would have taken
+about 1 h.
+
+| Finding | n pos | DenseNet-121 | ResNet-50 | EfficientNet-B0 |
+|---|---:|---:|---:|---:|
+| Atelectasis | 1,329 | 0.812 | 0.814 | **0.815** |
+| Cardiomegaly | 273 | **0.909** | 0.894 | 0.898 |
+| Effusion | 1,421 | **0.889** | 0.888 | 0.883 |
+| Infiltration | 2,156 | 0.700 | **0.707** | 0.701 |
+| Mass | 588 | **0.816** | 0.813 | 0.802 |
+| Nodule | 756 | 0.754 | **0.766** | 0.749 |
+| Pneumonia | 143 | **0.746** | 0.739 | 0.741 |
+| Pneumothorax | 417 | 0.838 | 0.834 | **0.851** |
+| Consolidation | 451 | 0.802 | 0.806 | **0.810** |
+| Edema | 209 | **0.905** | 0.890 | 0.900 |
+| Emphysema | 251 | 0.887 | 0.890 | **0.893** |
+| Fibrosis | 183 | 0.802 | **0.804** | 0.794 |
+| Pleural Thickening | 356 | 0.790 | **0.799** | 0.785 |
+| Hernia | 22 | **0.965** | 0.938 | 0.963 |
+
+Best per row in bold. **No architecture is ahead across the board.** The
+macro AUCs lie within 0.0023 of each other. Per finding, the lead changes
+hands, typically by 0.01–0.02. Whether any of these gaps exceeds what
+random variation produces is not yet tested: confidence intervals (bootstrap
+over validation images) are the next analysis.
+
+**View-position check, all three models.** The table shows the overall AUC
+minus the better of the PA-only and AP-only AUCs. A positive value means
+mixing the views helps, a sign the model uses view position.
+
+| Finding | DenseNet-121 | ResNet-50 | EfficientNet-B0 |
+|---|---:|---:|---:|
+| Consolidation | +0.026 | +0.030 | +0.026 |
+| Pneumonia | +0.017 | -0.003 | +0.013 |
+| Edema | +0.002 | +0.049 | -0.002 |
+| Infiltration | -0.036 | -0.030 | -0.040 |
+
+- **Consolidation** shows a consistent +0.026 to +0.030 in all three. This
+  is the clearest evidence of a view-position contribution.
+- **Edema** shows it only for ResNet-50 (+0.049), on 30 PA positives, which
+  is too few to rely on.
+- **Pneumonia** is mixed.
+- **Infiltration** is negative in all three: the model does better within
+  each view than across them.
+
 ## Limitations
 - Labels are NLP-mined from reports, not image annotations.
 - "No Finding" ≠ normal.
@@ -91,10 +176,11 @@ and AP-only AUCs, since within one view the shortcut cannot help.
   threshold-dependent metrics shift between validation and test.
 - View position confounds labels: Edema is 11× and Consolidation 2.8×
   more prevalent on AP (often bedside) films than PA. The model may partly
-  learn "AP film" rather than the finding. Run 1 shows a modest view
-  contribution for Consolidation and Pneumonia, not Edema, and lower
-  performance on AP films overall (0.781 vs 0.829). *(EDA §6; Training
-  runs, Run 1)*
+  learn "AP film" rather than the finding. All three trained models show a
+  view contribution for Consolidation (about +0.03 AUC); none shows a
+  consistent one for Edema. All perform worse on AP films (0.768–0.798
+  vs 0.823–0.829 on PA). *(EDA §6; Training runs, Architecture
+  comparison)*
 - Most films carry burned-in laterality markers, and AP films often show
   ECG leads and lines. These are potential shortcut features, to be checked
   with Grad-CAM. *(EDA §8)*
