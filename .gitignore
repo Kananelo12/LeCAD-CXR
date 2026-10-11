@@ -63,3 +63,8 @@ Thumbs.db
 desktop.ini
 .vscode/
 .idea/
+
+# Agent skills: restore with `npx skills experimental_install` (skills-lock.json)
+.claude/skills/
+# Impeccable review captures (regenerated per review)
+.impeccable/review/
