@@ -22,15 +22,19 @@ def main() -> None:
         return
 
     results = {p.parent.name: json.loads(p.read_text()) for p in runs}
+    ranked = sorted(results.items(), key=lambda kv: -kv[1]["macro_auc"])
     width = max(len(name) for name in results) + 2
 
-    print(f"{'run':<{width}}{'macro AUC':>10}{'macro PR-AUC':>14}")
-    for name, m in sorted(results.items(), key=lambda kv: -kv[1]["macro_auc"]):
-        print(f"{name:<{width}}{m['macro_auc']:>10.4f}{m['macro_pr_auc']:>14.4f}")
+    # Run names are long and share a prefix; the per-class table refers to
+    # each run by its rank, in the same order as the summary.
+    print(f"{'#':<4}{'run':<{width}}{'macro AUC':>10}{'macro PR-AUC':>14}")
+    for rank, (name, m) in enumerate(ranked, 1):
+        print(f"{rank:<4}{name:<{width}}{m['macro_auc']:>10.4f}{m['macro_pr_auc']:>14.4f}")
 
-    print(f"\nPer-class AUC\n{'label':<20}" + "".join(f"{n[:14]:>16}" for n in results))
+    print(f"\nPer-class AUC\n{'label':<20}" + "".join(f"{'#' + str(r):>8}" for r in
+                                                       range(1, len(ranked) + 1)))
     for label in LABELS:
-        row = "".join(f"{m['per_class'][label]['auc']:>16.3f}" for m in results.values())
+        row = "".join(f"{m['per_class'][label]['auc']:>8.3f}" for _, m in ranked)
         print(f"{label:<20}{row}")
 
 
