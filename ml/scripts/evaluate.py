@@ -14,6 +14,11 @@ docs/eda-summary.md):
                    suggests the model is partly reading the view, not the lung
     adults (18+)   the intended-use population; under-18 images are kept in
                    training for comparability with published results
+
+Writes eval_<name>.json (metrics) and preds_<name>.npz (every image's
+probabilities, labels, patient, view and age, for bootstrap_compare.py).
+<name> defaults to the split; pass --name to keep a second evaluation (e.g.
+a CPU re-run) from overwriting the first.
 """
 from __future__ import annotations
 
@@ -24,6 +29,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parents[1] / "src"))
 
+import numpy as np
 import torch
 
 from lecad.data import build_loader
@@ -41,6 +47,7 @@ def main() -> None:
     ap.add_argument("--batch-size", type=int, default=64)
     ap.add_argument("--num-workers", type=int, default=4)
     ap.add_argument("--limit", type=int)
+    ap.add_argument("--name", help="output name (default: the split)")
     args = ap.parse_args()
 
     ckpt = torch.load(args.run / "best.pt", map_location="cpu", weights_only=False)
@@ -71,8 +78,19 @@ def main() -> None:
         if mask.any()
     }
 
-    out = args.run / f"eval_{args.split}.json"
+    name = args.name or args.split
+    out = args.run / f"eval_{name}.json"
     out.write_text(json.dumps(metrics, indent=2))
+    np.savez_compressed(
+        args.run / f"preds_{name}.npz",
+        y=y.astype(np.uint8),
+        p=p.astype(np.float32),
+        image=frame["Image Index"].to_numpy().astype(str),
+        patient=frame["Patient ID"].to_numpy().astype(np.int64),
+        view=frame["View Position"].to_numpy().astype(str),
+        age=frame["Patient Age"].to_numpy().astype(np.float32),
+        labels=np.array(LABELS),
+    )
 
     print(f"{args.split}: {len(y)} images, macro AUC {metrics['macro_auc']:.4f}\n")
     print(f"{'label':<20}{'n_pos':>7}{'AUC':>8}{'sens':>8}{'spec':>8}")
@@ -84,7 +102,7 @@ def main() -> None:
     print(f"\n{'subgroup':<20}{'images':>8}{'macro AUC':>11}")
     for name, g in metrics["subgroups"].items():
         print(f"{name:<20}{g['n_images']:>8}{g['macro_auc']:>11.4f}")
-    print(f"\nWrote {out}")
+    print(f"\nWrote {out} and preds_{name}.npz")
 
 
 if __name__ == "__main__":
