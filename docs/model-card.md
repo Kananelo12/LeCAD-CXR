@@ -138,9 +138,58 @@ about 1 h.
 
 Best per row in bold. **No architecture is ahead across the board.** The
 macro AUCs lie within 0.0023 of each other. Per finding, the lead changes
-hands, typically by 0.01–0.02. Whether any of these gaps exceeds what
-random variation produces is not yet tested: confidence intervals (bootstrap
-over validation images) are the next analysis.
+hands, typically by 0.01–0.02. None of these gaps is statistically
+meaningful (see *Uncertainty* below).
+
+### Uncertainty: are the differences real?
+
+Paired bootstrap over **patients** (2,000 rounds, seed 42;
+`ml/scripts/bootstrap_compare.py`). Resampling patients rather than images
+respects that one patient's radiographs are not independent. All three
+models are scored on the same resampled patients in each round. Predictions
+are from re-running the trained models on the T4 (`evaluate.py --name
+val-gpu`); the point estimates reproduce the recorded results exactly.
+
+**All validation images** (13,025 images, 4,201 patients):
+
+| Model | Macro AUC | 95% CI |
+|---|---:|---:|
+| DenseNet-121 | 0.8297 | [0.8210, 0.8376] |
+| ResNet-50 | 0.8274 | [0.8167, 0.8362] |
+| EfficientNet-B0 | 0.8274 | [0.8191, 0.8347] |
+
+| Difference | Δ AUC | 95% CI | A ahead in |
+|---|---:|---:|---:|
+| DenseNet-121 − EfficientNet-B0 | +0.0023 | [-0.0032, +0.0077] | 80% |
+| DenseNet-121 − ResNet-50 | +0.0023 | [-0.0024, +0.0077] | 82% |
+| EfficientNet-B0 − ResNet-50 | +0.0001 | [-0.0063, +0.0079] | 48% |
+
+**AP (bedside) films only** (4,686 images, 1,196 patients):
+
+| Model | Macro AUC | 95% CI | Excluding Hernia |
+|---|---:|---:|---:|
+| DenseNet-121 | 0.7812 | [0.7534, 0.8110] | 0.7829 |
+| ResNet-50 | 0.7679 | [0.7295, 0.8073] | 0.7803 |
+| EfficientNet-B0 | 0.7981 | [0.7759, 0.8150] | 0.7862 |
+
+| Difference (AP only) | Δ AUC | 95% CI | A ahead in |
+|---|---:|---:|---:|
+| EfficientNet-B0 − DenseNet-121 | +0.0170 | [-0.0071, +0.0373] | 87% |
+| EfficientNet-B0 − ResNet-50 | +0.0302 | [-0.0035, +0.0606] | 93% |
+| DenseNet-121 − ResNet-50 | +0.0132 | [-0.0045, +0.0313] | 88% |
+
+**Conclusion.** Every pairwise difference has a 95% interval spanning zero,
+overall and on AP films. **The three architectures perform equivalently on
+validation.**
+
+EfficientNet-B0's apparent lead on AP films (0.798) rests largely on Hernia,
+which has **2** AP positives. There, its AUC of 0.95 against 0.76 and 0.61
+moves a 14-finding average by more than a point. Excluding Hernia, the AP
+averages are 0.786 / 0.783 / 0.780.
+
+Per-finding intervals overlap throughout (full table in
+`ml/artifacts/comparisons/bootstrap_val-gpu.json`). Hernia's spans about
+0.84–1.00 overall, confirming the sparse-label caveat.
 
 **View-position check, all three models.** The table shows the overall AUC
 minus the better of the PA-only and AP-only AUCs. A positive value means

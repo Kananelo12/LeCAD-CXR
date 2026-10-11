@@ -1,7 +1,8 @@
 """Confidence intervals for each model's AUC, and for the differences between
 models, by a paired bootstrap over PATIENTS.
 
-    python ml/scripts/bootstrap_compare.py --name val-cpu
+    python ml/scripts/bootstrap_compare.py --name val-gpu
+    python ml/scripts/bootstrap_compare.py --name val-gpu --view AP   # bedside films only
 
 Reads preds_<name>.npz from every run under <artifacts>/runs that has one
 (written by evaluate.py --name <name>), or only the runs given with --runs.
@@ -62,6 +63,7 @@ def main() -> None:
     ap.add_argument("--runs", nargs="*", help="run folder names (default: all with preds)")
     ap.add_argument("--n", type=int, default=2000, help="bootstrap rounds")
     ap.add_argument("--seed", type=int, default=42)
+    ap.add_argument("--view", choices=("PA", "AP"), help="restrict to one view position")
     args = ap.parse_args()
 
     root = PATHS.artifacts / "runs"
@@ -78,12 +80,17 @@ def main() -> None:
     for n in names[1:]:
         if not np.array_equal(data[n]["image"], first["image"]):
             raise SystemExit(f"{n} was evaluated on different images; cannot pair.")
-    probs = {n: data[n]["p"] for n in names}
+    keep = np.ones(len(y), dtype=bool)
+    if args.view:
+        keep = first["view"] == args.view
+        y = y[keep]
+    probs = {n: data[n]["p"][keep] for n in names}
 
-    patients = first["patient"]
+    patients = first["patient"][keep]
     _, inverse = np.unique(patients, return_inverse=True)
     groups = [np.flatnonzero(inverse == g) for g in range(inverse.max() + 1)]
-    print(f"runs     : {len(names)}\nimages   : {len(y):,}\npatients : {len(groups):,}\n"
+    print(f"runs     : {len(names)}\nview     : {args.view or 'all'}\n"
+          f"images   : {len(y):,}\npatients : {len(groups):,}\n"
           f"rounds   : {args.n:,} (seed {args.seed})")
 
     point = {n: per_class_auc(y, probs[n]) for n in names}
@@ -101,7 +108,8 @@ def main() -> None:
     macro_point = {n: float(np.nanmean(point[n])) for n in names}
     macro_boot = {n: np.nanmean(boot[n], axis=1) for n in names}
 
-    report = {"name": args.name, "rounds": args.n, "seed": args.seed,
+    report = {"name": args.name, "view": args.view or "all", "rounds": args.n,
+              "seed": args.seed,
               "images": len(y), "patients": len(groups), "models": {}, "differences": {}}
     width = max(len(n) for n in names) + 2
 
@@ -140,7 +148,7 @@ def main() -> None:
 
     out = PATHS.artifacts / "comparisons"
     out.mkdir(parents=True, exist_ok=True)
-    path = out / f"bootstrap_{args.name}.json"
+    path = out / f"bootstrap_{args.name}{'_' + args.view if args.view else ''}.json"
     path.write_text(json.dumps(report, indent=2))
     print(f"\nWrote {path}")
 
