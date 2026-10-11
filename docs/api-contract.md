@@ -86,7 +86,7 @@ Response **200**:
   "created_at": "2026-10-10T09:14:03Z",
   "image_sha256": "9b2e…(64 hex chars)",
   "model": { "version": "densenet121-2026-10-20-a1b2c3d", "architecture": "densenet121" },
-  "disclaimer": "Decision support only — not a diagnosis. …",
+  "disclaimer": "Decision support only, not a diagnosis. …",
   "findings": [
     { "label": "Atelectasis", "probability": 0.31, "threshold": 0.12, "band": "above", "sparse": false }
   ],

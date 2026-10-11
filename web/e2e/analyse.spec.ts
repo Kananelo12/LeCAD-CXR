@@ -25,7 +25,7 @@ test("sign in, analyse an image, and find it in history", async ({ page }) => {
   await expect(page).toHaveURL(/\/history$/);
   await expect(page.getByText("You have not analysed any images yet.")).toBeVisible();
 
-  await page.getByRole("link", { name: "Analyse" }).click();
+  await page.getByRole("link", { name: "Analyse", exact: true }).click();
   await page.getByLabel(/drop a chest x-ray/i).setInputFiles({
     name: "cxr.png",
     mimeType: "image/png",

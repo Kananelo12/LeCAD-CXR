@@ -1,20 +1,24 @@
 "use client";
 
-import { useEffect, useRef } from "react";
+import { CaretRight, CircleHalf, Flag, ListMagnifyingGlass, Minus } from "@phosphor-icons/react";
+import { useEffect, useRef, type ComponentType } from "react";
+import { Panel, PanelHeading } from "@/components/ui";
 import type { Band, Finding, Label, Prediction } from "@/lib/api/schemas";
 import { BAND_TEXT, labelName } from "@/lib/labels";
 
-const BAND_STYLE: Record<Band, { icon: string; className: string }> = {
-  above: { icon: "▲", className: "bg-flag-bg text-flag" },
-  near: { icon: "◆", className: "bg-near-bg text-near" },
-  below: { icon: "–", className: "bg-clear-bg text-clear" },
+type IconType = ComponentType<{ size?: number; weight?: "regular" | "bold" | "fill"; "aria-hidden"?: boolean }>;
+
+const BAND_STYLE: Record<Band, { Icon: IconType; className: string }> = {
+  above: { Icon: Flag, className: "bg-flag-bg text-flag" },
+  near: { Icon: CircleHalf, className: "bg-near-bg text-near" },
+  below: { Icon: Minus, className: "bg-clear-bg text-clear" },
 };
 
 export function BandBadge({ band }: { band: Band }) {
-  const { icon, className } = BAND_STYLE[band];
+  const { Icon, className } = BAND_STYLE[band];
   return (
-    <span className={`inline-flex items-center gap-1.5 rounded px-2 py-0.5 text-xs font-medium ${className}`}>
-      <span aria-hidden>{icon}</span>
+    <span className={`inline-flex items-center gap-1.5 rounded-md px-2 py-0.5 text-xs font-medium ${className}`}>
+      <Icon aria-hidden size={13} weight="fill" />
       {BAND_TEXT[band]}
     </span>
   );
@@ -49,37 +53,45 @@ export function FindingsList({ prediction, selected, onSelect }: Props) {
   );
 
   return (
-    <div className="space-y-6">
-      <div>
-        <h2 ref={summary} tabIndex={-1} className="text-lg font-semibold">
+    <Panel aria-labelledby="findings-summary" className="p-5 sm:p-6">
+      <PanelHeading icon={<ListMagnifyingGlass size={18} weight="bold" />}>Findings</PanelHeading>
+
+      <div className="mt-5">
+        <h3
+          id="findings-summary"
+          ref={summary}
+          tabIndex={-1}
+          className="text-2xl font-medium tracking-[-0.02em]"
+        >
           {flagged.length === 0
             ? "No findings flagged for review"
             : `${flagged.length} ${flagged.length === 1 ? "finding" : "findings"} flagged for review`}
-        </h2>
-        <p className="mt-1 text-sm text-muted">
-          The model checks for 14 findings only. &ldquo;Not flagged&rdquo; does not mean
-          the image is normal.
+        </h3>
+        <p className="mt-1.5 text-sm text-muted">
+          The model checks for 14 findings only. &ldquo;Not flagged&rdquo; does not mean the
+          image is normal.
         </p>
       </div>
 
-      {flagged.length > 0 && <ul className="space-y-2">{flagged.map(row)}</ul>}
+      {flagged.length > 0 && <ul className="mt-5 space-y-2">{flagged.map(row)}</ul>}
 
       {near.length > 0 && (
-        <section aria-labelledby="near-heading">
-          <h3 id="near-heading" className="mb-2 text-sm font-medium text-muted">
+        <section aria-labelledby="near-heading" className="mt-6">
+          <h4 id="near-heading" className="mb-2 text-sm font-medium text-muted">
             Borderline: below the flagging threshold, but within half of it
-          </h3>
+          </h4>
           <ul className="space-y-2">{near.map(row)}</ul>
         </section>
       )}
 
-      <details className="group">
-        <summary className="cursor-pointer text-sm font-medium text-muted">
+      <details className="group mt-6">
+        <summary className="flex cursor-pointer list-none items-center gap-2 rounded-[10px] text-sm font-medium text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
+          <CaretRight aria-hidden size={14} weight="bold" className="transition-transform duration-150 group-open:rotate-90" />
           Not flagged ({below.length})
         </summary>
         <ul className="mt-2 space-y-2">{below.map(row)}</ul>
       </details>
-    </div>
+    </Panel>
   );
 }
 
@@ -95,37 +107,51 @@ function FindingRow({
   onSelect: () => void;
 }) {
   const name = labelName(finding.label);
+  const head = (
+    <>
+      <span className="font-medium">{name}</span>
+      <BandBadge band={finding.band} />
+      {finding.sparse && (
+        <span
+          className="rounded-md bg-surface px-2 py-0.5 text-xs text-muted ring-1 ring-line"
+          title="Few examples of this finding in the training data, so this estimate is less reliable."
+        >
+          Low-confidence estimate
+        </span>
+      )}
+    </>
+  );
+
   return (
     <li
-      className={`rounded-lg border bg-surface p-3 ${selected ? "border-accent" : "border-line"}`}
+      className={`rounded-[10px] px-3.5 py-3 transition duration-200 ease-out ${
+        selected ? "-translate-y-px bg-surface shadow-raised" : "bg-surface-2"
+      }`}
     >
-      <div className="flex flex-wrap items-center gap-2">
-        <span className="font-medium">{name}</span>
-        <BandBadge band={finding.band} />
-        {finding.sparse && (
+      {hasHeatmap ? (
+        <button
+          type="button"
+          onClick={onSelect}
+          aria-pressed={selected}
+          className="flex w-full flex-wrap items-center gap-2 rounded-md text-left"
+        >
+          {head}
           <span
-            className="rounded border border-line px-2 py-0.5 text-xs text-muted"
-            title="Few examples of this finding in the training data, so this estimate is less reliable."
-          >
-            Low-confidence estimate
-          </span>
-        )}
-        {hasHeatmap && (
-          <button
-            type="button"
-            onClick={onSelect}
-            aria-pressed={selected}
-            className={`ml-auto rounded-md px-2 py-1 text-xs font-medium ${
-              selected ? "bg-accent text-accent-text" : "border border-line hover:bg-surface-2"
-            }`}
+            className={`ml-auto flex items-center gap-1 text-xs font-medium ${selected ? "text-accent" : "text-muted"}`}
           >
             {selected ? "Heatmap shown" : "Show heatmap"}
-          </button>
-        )}
-      </div>
-      <details className="mt-1">
-        <summary className="cursor-pointer text-xs text-muted">Model score</summary>
-        <p className="mt-1 text-sm">
+            <CaretRight aria-hidden size={13} weight="bold" />
+          </span>
+        </button>
+      ) : (
+        <div className="flex flex-wrap items-center gap-2">{head}</div>
+      )}
+      <details className="group/score mt-1.5">
+        <summary className="inline-flex cursor-pointer list-none items-center gap-1 rounded text-xs text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
+          <CaretRight aria-hidden size={11} weight="bold" className="transition-transform duration-150 group-open/score:rotate-90" />
+          Model score
+        </summary>
+        <p className="mt-1.5 text-sm tabular-nums">
           Score <span className="font-mono">{finding.probability.toFixed(3)}</span>, flagging
           threshold <span className="font-mono">{finding.threshold.toFixed(3)}</span>.
         </p>
