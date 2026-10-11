@@ -17,6 +17,10 @@ optim:
   weight_decay: 1.0e-5
   scheduler: cosine
   use_pos_weight: true          # counter class imbalance in BCE
+  # Stop when val macro AUC has not improved for this many epochs. The
+  # baseline (run 1, 15 full epochs) peaked at epoch 4; stopping here would
+  # have produced the identical best.pt. Remove the line to disable.
+  early_stopping_patience: 3
 
 eval:
   primary_metric: macro_auc     # prevalence-insensitive; see splits.py

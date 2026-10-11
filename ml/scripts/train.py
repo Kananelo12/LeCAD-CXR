@@ -14,6 +14,11 @@ Each run writes to <artifacts>/runs/<name>-<timestamp>/:
     last.pt         latest epoch, for --resume after a Kaggle session ends
 
 Model selection uses VALIDATION only. The test set is never touched here.
+
+Early stopping: with optim.early_stopping_patience set, training ends once the
+validation macro AUC has not improved for that many epochs. The learning-rate
+schedule still spans optim.epochs, so a stopped run follows exactly the path a
+full-length run would have taken up to that point, and best.pt is identical.
 """
 from __future__ import annotations
 
@@ -146,7 +151,8 @@ def main() -> None:
     scheduler = torch.optim.lr_scheduler.CosineAnnealingLR(optimizer, T_max=epochs)
     scaler = torch.amp.GradScaler(device.type, enabled=amp)
 
-    start_epoch, best_auc = 1, -1.0
+    patience = cfg["optim"].get("early_stopping_patience")
+    start_epoch, best_auc, best_epoch = 1, -1.0, 0
     if args.resume:
         state = torch.load(run_dir / "last.pt", map_location=device, weights_only=False)
         model.load_state_dict(state["model"])
@@ -154,6 +160,9 @@ def main() -> None:
         scheduler.load_state_dict(state["scheduler"])
         scaler.load_state_dict(state["scaler"])
         start_epoch, best_auc = state["epoch"] + 1, state["best_auc"]
+        best_epoch = state.get("best_epoch", state["epoch"])
+        if patience and state["epoch"] - best_epoch >= patience:
+            start_epoch = epochs + 1  # this run already stopped early; nothing to resume
         print(f"resumed : from epoch {state['epoch']}, best macro AUC {best_auc:.4f}")
 
     for epoch in range(start_epoch, epochs + 1):
@@ -206,7 +215,7 @@ def main() -> None:
         }
         score = float(np.nan_to_num(metrics["macro_auc"], nan=0.0))
         if score > best_auc:
-            best_auc = score
+            best_auc, best_epoch = score, epoch
             torch.save(checkpoint, run_dir / "best.pt")
             (run_dir / "best_val_metrics.json").write_text(json.dumps(metrics, indent=2))
             print("          new best -> best.pt")
@@ -217,11 +226,17 @@ def main() -> None:
                 "scheduler": scheduler.state_dict(),
                 "scaler": scaler.state_dict(),
                 "best_auc": best_auc,
+                "best_epoch": best_epoch,
             },
             run_dir / "last.pt",
         )
 
-    print(f"\nDone. Best validation macro AUC {best_auc:.4f}. Run: {run_dir}")
+        if patience and epoch - best_epoch >= patience and epoch < epochs:
+            print(f"          no improvement for {patience} epochs: stopping early")
+            break
+
+    print(f"\nDone. Best validation macro AUC {best_auc:.4f} (epoch {best_epoch}). "
+          f"Run: {run_dir}")
 
 
 if __name__ == "__main__":

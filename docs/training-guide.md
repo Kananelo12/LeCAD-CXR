@@ -269,57 +269,93 @@ The line to look for:
 full epoch (a slight overestimate), then by **15** epochs. Share the
 seconds with Claude to check the estimate and the credit cost.
 
-### C7. The full run, in the background
+### C7. The full run, in the background, with automatic shutdown
 
-Start it so it keeps running if you close the browser:
+**Once, before the first run with this script:** check the Studio can find
+and stop itself. On the CPU machine (free):
 
 ```bash
 cd ~/LeCAD-CXR
-nohup python ml/scripts/train.py --config ml/configs/baseline.yaml > train-baseline.log 2>&1 &
+python ml/scripts/stop_studio.py --check
 ```
 
-Check progress at any time:
+It should print `studio  : <your studio name>` and `--check: not stopping.`
+If it says `lightning_sdk is not installed`, run `pip install -q lightning-sdk`
+and try again. Then do a real stop, still on CPU:
+`python ml/scripts/stop_studio.py`. The terminal disconnects and the Studio
+shows as stopped. Start it again; your files are still there.
+
+**Each run** (on the T4, see C5):
+
+```bash
+cd ~/LeCAD-CXR
+git pull
+nohup bash ml/scripts/run_on_lightning.sh ml/configs/baseline.yaml > train-baseline.log 2>&1 &
+```
+
+The script trains, writes the validation report, and then **stops the
+Studio by itself**. It does this whether training finished, failed, or ran
+past 4 hours, so a finished run never leaves the GPU billing. With early
+stopping (`early_stopping_patience: 3` in the config), training ends once
+the validation AUC hasn't improved for 3 epochs.
+
+Check progress at any time (while the Studio is running):
 
 ```bash
 grep -a "val macro" train-baseline.log
 ```
 
-**First time only, check it really runs in the background:** close the
-browser tab, come back after 15 minutes, and run the `grep` line again. If
-new epochs have appeared, all is well. If the Studio went to sleep and
-training stopped, tell Claude. Nothing is lost: continue with
+When you come back and the Studio is stopped, the job is over. Start the
+Studio **on CPU** (free) and read the end of the log:
 
 ```bash
-python ml/scripts/train.py --config ml/configs/baseline.yaml --resume ml/artifacts/runs/<run-folder>
+cd ~/LeCAD-CXR
+tail -40 train-baseline.log
 ```
 
-The run folder name is printed at the top of the log (`run dir : ...`).
+You'll see the `Done. Best validation macro AUC ... (epoch N)` line, then
+the per-finding table from `evaluate.py`, then `job over; stopping the
+Studio`.
 
-When it ends, the log's last line reads
-`Done. Best validation macro AUC 0.8xxx`. Then the validation report:
+If a run was cut off (the log ends with `passed 4h` or `failed`), it can
+continue where it stopped:
 
 ```bash
-python ml/scripts/evaluate.py --run ml/artifacts/runs/<run-folder>
+nohup bash ml/scripts/run_on_lightning.sh ml/configs/baseline.yaml --resume ml/artifacts/runs/<run-folder> > train-baseline.log 2>&1 &
 ```
+
+The run folder name is printed near the top of the log (`run dir : ...`).
 
 For reference, published DenseNet-121 results on this dataset reach about
 0.80–0.84 macro AUC.
 
-### C8. Stop paying, and collect the results
+### C8. Collect the results
 
-1. **Switch the machine back to CPU** (or stop the Studio) as soon as
-   training and evaluation are done. The GPU bills by the second while it
-   runs, even if nothing is happening.
-2. In the Studio's file panel, open
-   `LeCAD-CXR/ml/artifacts/runs/<run-folder>/` and download (right-click →
-   Download):
-   - `best.pt`: the model, about 30 MB for DenseNet-121
-   - `best_val_metrics.json`, `eval_val.json`: the numbers
-   - `history.jsonl`: per-epoch progress, for learning-curve plots
-   - `config.yaml`: exactly what produced this run
-3. On the laptop, put them in
-   `D:\Work\LeCAD-CXR\ml\artifacts\runs\<run-folder>\`. This folder is
-   ignored by git, which is correct: weights don't belong in git.
+Do this on the **CPU** machine; it doesn't need the GPU.
+
+1. Pack the run into one file (leaving out `last.pt`, which is only for
+   resuming):
+
+   ```bash
+   cd ~/LeCAD-CXR/ml/artifacts/runs
+   tar --exclude='*/last.pt' -czf ~/<run-folder>.tar.gz <run-folder>
+   ```
+
+2. In the Studio's file panel (left), find `<run-folder>.tar.gz` at the top
+   level, right-click → **Download**.
+3. On the laptop (PowerShell, in `D:\Work\LeCAD-CXR`):
+
+   ```powershell
+   tar -xzf "$env:USERPROFILE\Downloads\<run-folder>.tar.gz" -C ml\artifacts\runs
+   python ml\scripts\compare_runs.py
+   ```
+
+   The files land in `ml\artifacts\runs\<run-folder>\`: `best.pt` (the
+   model), `best_val_metrics.json` and `eval_val.json` (the numbers),
+   `history.jsonl` (per-epoch progress) and `config.yaml` (exactly what
+   produced the run). The folder is ignored by git, which is correct: weights
+   don't belong in git.
+4. **Stop the Studio** when you're done.
 
 ---
 
@@ -328,14 +364,20 @@ For reference, published DenseNet-121 results on this dataset reach about
 The study compares DenseNet-121, ResNet-50 and EfficientNet-B0. The configs
 are identical apart from the architecture, so the comparison is fair.
 
-1. Repeat **C7** (and C8) twice more, changing only the config file:
+1. Repeat **C5, C7 and C8** twice more, changing only the config file:
 
    ```bash
-   nohup python ml/scripts/train.py --config ml/configs/resnet50.yaml > train-resnet50.log 2>&1 &
-   nohup python ml/scripts/train.py --config ml/configs/efficientnet_b0.yaml > train-effnet.log 2>&1 &
+   nohup bash ml/scripts/run_on_lightning.sh ml/configs/resnet50.yaml > train-resnet50.log 2>&1 &
    ```
 
-   Run them **one after the other**, not at the same time: one T4, one run.
+   and, after that one has finished and been collected:
+
+   ```bash
+   nohup bash ml/scripts/run_on_lightning.sh ml/configs/efficientnet_b0.yaml > train-effnet.log 2>&1 &
+   ```
+
+   Run them **one after the other**, not at the same time. Each start needs
+   the T4 again (C5), because the script stops the Studio when it ends.
 2. Pick the winner on **validation macro AUC** (`best_val_metrics.json`).
    Never use the test set for this choice.
 3. Once the three runs' files are in `ml/artifacts/runs/` on the laptop,
