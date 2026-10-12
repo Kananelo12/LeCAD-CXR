@@ -20,6 +20,13 @@ import sys
 from sqlalchemy import select
 from sqlalchemy.orm import Session
 
+try:  # read DATABASE_URL from .env, as the API does (settings.py)
+    from dotenv import load_dotenv
+
+    load_dotenv()
+except ImportError:
+    pass
+
 from . import audit
 from .db import User, init_db, make_engine, make_sessionmaker
 from .security import hash_password
