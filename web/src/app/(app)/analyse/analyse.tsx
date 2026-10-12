@@ -48,7 +48,7 @@ export function Analyse() {
     : null;
 
   return (
-    <div className="max-w-2xl">
+    <div>
       <UploadPanel
         key={round}
         file={selected?.file ?? null}

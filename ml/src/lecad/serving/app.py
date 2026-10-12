@@ -57,7 +57,7 @@ from .security import (
 from .settings import Settings
 
 DISCLAIMER = (
-    "Decision support only — not a diagnosis. LeCAD-CXR is a research prototype, "
+    "Decision support only, not a diagnosis. LeCAD-CXR is a research prototype, "
     "not a registered medical device. It has not been validated on patients in "
     "Lesotho. The clinical decision remains with the treating clinician."
 )

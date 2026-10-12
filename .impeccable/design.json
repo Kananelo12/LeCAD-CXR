@@ -1,0 +1,458 @@
+{
+  "schemaVersion": 2,
+  "generatedAt": "2026-10-11T10:23:09+00:00",
+  "title": "Design System: LeCAD-CXR",
+  "extensions": {
+    "colorMeta": {
+      "clinical-blue": {
+        "role": "primary",
+        "displayName": "Clinical Blue",
+        "canonical": "#2563c9",
+        "tonalRamp": [
+          "oklch(15% 0.171 260.0)",
+          "oklch(25% 0.171 260.0)",
+          "oklch(36% 0.171 260.0)",
+          "oklch(47% 0.171 260.0)",
+          "oklch(58% 0.171 260.0)",
+          "oklch(70% 0.171 260.0)",
+          "oklch(83% 0.171 260.0)",
+          "oklch(95% 0.171 260.0)"
+        ]
+      },
+      "clinical-blue-deep": {
+        "role": "primary",
+        "displayName": "Clinical Blue Deep",
+        "canonical": "#1c4fa6",
+        "tonalRamp": [
+          "oklch(15% 0.151 260.5)",
+          "oklch(25% 0.151 260.5)",
+          "oklch(36% 0.151 260.5)",
+          "oklch(47% 0.151 260.5)",
+          "oklch(58% 0.151 260.5)",
+          "oklch(70% 0.151 260.5)",
+          "oklch(83% 0.151 260.5)",
+          "oklch(95% 0.151 260.5)"
+        ]
+      },
+      "blue-mist": {
+        "role": "primary",
+        "displayName": "Blue Mist",
+        "canonical": "#e7eefb",
+        "tonalRamp": [
+          "oklch(15% 0.019 263.0)",
+          "oklch(25% 0.019 263.0)",
+          "oklch(36% 0.019 263.0)",
+          "oklch(47% 0.019 263.0)",
+          "oklch(58% 0.019 263.0)",
+          "oklch(70% 0.019 263.0)",
+          "oklch(83% 0.019 263.0)",
+          "oklch(95% 0.019 263.0)"
+        ]
+      },
+      "ground": {
+        "role": "neutral",
+        "displayName": "Ground",
+        "canonical": "#eef1f5",
+        "tonalRamp": [
+          "oklch(15% 0.006 255.5)",
+          "oklch(25% 0.006 255.5)",
+          "oklch(36% 0.006 255.5)",
+          "oklch(47% 0.006 255.5)",
+          "oklch(58% 0.006 255.5)",
+          "oklch(70% 0.006 255.5)",
+          "oklch(83% 0.006 255.5)",
+          "oklch(95% 0.006 255.5)"
+        ]
+      },
+      "ground-deep": {
+        "role": "neutral",
+        "displayName": "Ground Deep",
+        "canonical": "#e2e7ee",
+        "tonalRamp": [
+          "oklch(15% 0.011 256.7)",
+          "oklch(25% 0.011 256.7)",
+          "oklch(36% 0.011 256.7)",
+          "oklch(47% 0.011 256.7)",
+          "oklch(58% 0.011 256.7)",
+          "oklch(70% 0.011 256.7)",
+          "oklch(83% 0.011 256.7)",
+          "oklch(95% 0.011 256.7)"
+        ]
+      },
+      "panel": {
+        "role": "neutral",
+        "displayName": "Panel",
+        "canonical": "#ffffff",
+        "tonalRamp": [
+          "oklch(15% 0.000 89.9)",
+          "oklch(25% 0.000 89.9)",
+          "oklch(36% 0.000 89.9)",
+          "oklch(47% 0.000 89.9)",
+          "oklch(58% 0.000 89.9)",
+          "oklch(70% 0.000 89.9)",
+          "oklch(83% 0.000 89.9)",
+          "oklch(95% 0.000 89.9)"
+        ]
+      },
+      "inset": {
+        "role": "neutral",
+        "displayName": "Inset",
+        "canonical": "#f5f7fa",
+        "tonalRamp": [
+          "oklch(15% 0.005 258.3)",
+          "oklch(25% 0.005 258.3)",
+          "oklch(36% 0.005 258.3)",
+          "oklch(47% 0.005 258.3)",
+          "oklch(58% 0.005 258.3)",
+          "oklch(70% 0.005 258.3)",
+          "oklch(83% 0.005 258.3)",
+          "oklch(95% 0.005 258.3)"
+        ]
+      },
+      "hairline": {
+        "role": "neutral",
+        "displayName": "Hairline",
+        "canonical": "#dde3eb",
+        "tonalRamp": [
+          "oklch(15% 0.013 255.5)",
+          "oklch(25% 0.013 255.5)",
+          "oklch(36% 0.013 255.5)",
+          "oklch(47% 0.013 255.5)",
+          "oklch(58% 0.013 255.5)",
+          "oklch(70% 0.013 255.5)",
+          "oklch(83% 0.013 255.5)",
+          "oklch(95% 0.013 255.5)"
+        ]
+      },
+      "ink": {
+        "role": "neutral",
+        "displayName": "Ink",
+        "canonical": "#0f1b2d",
+        "tonalRamp": [
+          "oklch(15% 0.039 258.3)",
+          "oklch(25% 0.039 258.3)",
+          "oklch(36% 0.039 258.3)",
+          "oklch(47% 0.039 258.3)",
+          "oklch(58% 0.039 258.3)",
+          "oklch(70% 0.039 258.3)",
+          "oklch(83% 0.039 258.3)",
+          "oklch(95% 0.039 258.3)"
+        ]
+      },
+      "slate": {
+        "role": "neutral",
+        "displayName": "Slate",
+        "canonical": "#566376",
+        "tonalRamp": [
+          "oklch(15% 0.034 257.8)",
+          "oklch(25% 0.034 257.8)",
+          "oklch(36% 0.034 257.8)",
+          "oklch(47% 0.034 257.8)",
+          "oklch(58% 0.034 257.8)",
+          "oklch(70% 0.034 257.8)",
+          "oklch(83% 0.034 257.8)",
+          "oklch(95% 0.034 257.8)"
+        ]
+      },
+      "flag-amber": {
+        "role": "state",
+        "displayName": "Flag Amber",
+        "canonical": "#8f4400",
+        "tonalRamp": [
+          "oklch(15% 0.121 52.4)",
+          "oklch(25% 0.121 52.4)",
+          "oklch(36% 0.121 52.4)",
+          "oklch(47% 0.121 52.4)",
+          "oklch(58% 0.121 52.4)",
+          "oklch(70% 0.121 52.4)",
+          "oklch(83% 0.121 52.4)",
+          "oklch(95% 0.121 52.4)"
+        ]
+      },
+      "flag-amber-wash": {
+        "role": "state",
+        "displayName": "Flag Amber Wash",
+        "canonical": "#fff0dd",
+        "tonalRamp": [
+          "oklch(15% 0.030 73.9)",
+          "oklch(25% 0.030 73.9)",
+          "oklch(36% 0.030 73.9)",
+          "oklch(47% 0.030 73.9)",
+          "oklch(58% 0.030 73.9)",
+          "oklch(70% 0.030 73.9)",
+          "oklch(83% 0.030 73.9)",
+          "oklch(95% 0.030 73.9)"
+        ]
+      },
+      "borderline-ochre": {
+        "role": "state",
+        "displayName": "Borderline Ochre",
+        "canonical": "#6e5400",
+        "tonalRamp": [
+          "oklch(15% 0.094 87.8)",
+          "oklch(25% 0.094 87.8)",
+          "oklch(36% 0.094 87.8)",
+          "oklch(47% 0.094 87.8)",
+          "oklch(58% 0.094 87.8)",
+          "oklch(70% 0.094 87.8)",
+          "oklch(83% 0.094 87.8)",
+          "oklch(95% 0.094 87.8)"
+        ]
+      },
+      "borderline-ochre-wash": {
+        "role": "state",
+        "displayName": "Borderline Ochre Wash",
+        "canonical": "#fbf3d6",
+        "tonalRamp": [
+          "oklch(15% 0.039 94.3)",
+          "oklch(25% 0.039 94.3)",
+          "oklch(36% 0.039 94.3)",
+          "oklch(47% 0.039 94.3)",
+          "oklch(58% 0.039 94.3)",
+          "oklch(70% 0.039 94.3)",
+          "oklch(83% 0.039 94.3)",
+          "oklch(95% 0.039 94.3)"
+        ]
+      },
+      "clear-slate": {
+        "role": "state",
+        "displayName": "Clear Slate",
+        "canonical": "#4a5866",
+        "tonalRamp": [
+          "oklch(15% 0.029 248.5)",
+          "oklch(25% 0.029 248.5)",
+          "oklch(36% 0.029 248.5)",
+          "oklch(47% 0.029 248.5)",
+          "oklch(58% 0.029 248.5)",
+          "oklch(70% 0.029 248.5)",
+          "oklch(83% 0.029 248.5)",
+          "oklch(95% 0.029 248.5)"
+        ]
+      },
+      "caution-brown": {
+        "role": "state",
+        "displayName": "Caution Brown",
+        "canonical": "#6b3d00",
+        "tonalRamp": [
+          "oklch(15% 0.092 64.4)",
+          "oklch(25% 0.092 64.4)",
+          "oklch(36% 0.092 64.4)",
+          "oklch(47% 0.092 64.4)",
+          "oklch(58% 0.092 64.4)",
+          "oklch(70% 0.092 64.4)",
+          "oklch(83% 0.092 64.4)",
+          "oklch(95% 0.092 64.4)"
+        ]
+      },
+      "caution-wash": {
+        "role": "state",
+        "displayName": "Caution Wash",
+        "canonical": "#fff7ea",
+        "tonalRamp": [
+          "oklch(15% 0.019 80.1)",
+          "oklch(25% 0.019 80.1)",
+          "oklch(36% 0.019 80.1)",
+          "oklch(47% 0.019 80.1)",
+          "oklch(58% 0.019 80.1)",
+          "oklch(70% 0.019 80.1)",
+          "oklch(83% 0.019 80.1)",
+          "oklch(95% 0.019 80.1)"
+        ]
+      },
+      "error-red": {
+        "role": "state",
+        "displayName": "Error Red",
+        "canonical": "#b42318",
+        "tonalRamp": [
+          "oklch(15% 0.182 29.5)",
+          "oklch(25% 0.182 29.5)",
+          "oklch(36% 0.182 29.5)",
+          "oklch(47% 0.182 29.5)",
+          "oklch(58% 0.182 29.5)",
+          "oklch(70% 0.182 29.5)",
+          "oklch(83% 0.182 29.5)",
+          "oklch(95% 0.182 29.5)"
+        ]
+      }
+    },
+    "typographyMeta": {
+      "display": {
+        "displayName": "Display",
+        "purpose": "One page title per screen."
+      },
+      "headline": {
+        "displayName": "Headline",
+        "purpose": "The result summary on Analyse."
+      },
+      "title": {
+        "displayName": "Title",
+        "purpose": "Panel headings and page subtitles."
+      },
+      "body": {
+        "displayName": "Body",
+        "purpose": "Rows, captions, helper text."
+      },
+      "label": {
+        "displayName": "Label",
+        "purpose": "Band badges, tags, small notes."
+      },
+      "data": {
+        "displayName": "Data",
+        "purpose": "Scores, fingerprints, model versions, request IDs."
+      }
+    },
+    "shadows": [
+      {
+        "name": "panel",
+        "value": "0 1px 2px rgb(15 27 45 / 0.04), 0 10px 28px -14px rgb(15 27 45 / 0.16)",
+        "purpose": "Every panel, primary and secondary buttons, the current tab."
+      },
+      {
+        "name": "raised",
+        "value": "0 1px 2px rgb(15 27 45 / 0.06), 0 14px 32px -12px rgb(15 27 45 / 0.22)",
+        "purpose": "The selected finding row and the floating film toolbar."
+      }
+    ],
+    "motion": [
+      {
+        "name": "control",
+        "value": "150ms ease-out",
+        "purpose": "Hover, press (scale 0.98) and colour changes on controls."
+      },
+      {
+        "name": "selection",
+        "value": "200ms ease-out",
+        "purpose": "Finding row lift and heatmap overlay fade."
+      },
+      {
+        "name": "scan-sweep",
+        "value": "1.6s cubic-bezier(0.45, 0, 0.25, 1) infinite",
+        "purpose": "Loading only: a soft blue band sweeping down the film; static under reduced motion."
+      }
+    ],
+    "breakpoints": [
+      {
+        "name": "sm",
+        "value": "640px"
+      },
+      {
+        "name": "lg",
+        "value": "1024px"
+      }
+    ]
+  },
+  "components": [
+    {
+      "name": "Primary Button",
+      "kind": "button",
+      "refersTo": "button-primary",
+      "description": "The one primary action on a screen: Analyse image, Sign in.",
+      "html": "<button class=\"ds-btn-primary\">Analyse image</button>",
+      "css": ".ds-btn-primary{background:#2563c9;color:#fff;border:0;border-radius:9999px;padding:10px 20px;font:500 14px/1.4 Geist,ui-sans-serif,system-ui,sans-serif;box-shadow:0 1px 2px rgb(15 27 45/.04),0 10px 28px -14px rgb(15 27 45/.16);transition:background .15s ease-out,transform .15s ease-out;cursor:pointer}.ds-btn-primary:hover{background:#1c4fa6}.ds-btn-primary:active{transform:scale(.98)}.ds-btn-primary:focus-visible{outline:2px solid #2563c9;outline-offset:2px}"
+    },
+    {
+      "name": "Secondary Button",
+      "kind": "button",
+      "refersTo": "button-secondary",
+      "description": "Supporting actions: Analyse another image, Try again, Load more.",
+      "html": "<button class=\"ds-btn-secondary\">Analyse another image</button>",
+      "css": ".ds-btn-secondary{background:#fff;color:#0f1b2d;border:0;border-radius:9999px;padding:10px 20px;font:500 14px/1.4 Geist,ui-sans-serif,system-ui,sans-serif;box-shadow:0 1px 2px rgb(15 27 45/.04),0 10px 28px -14px rgb(15 27 45/.16);transition:background .15s ease-out,transform .15s ease-out;cursor:pointer}.ds-btn-secondary:hover{background:#f5f7fa}.ds-btn-secondary:active{transform:scale(.98)}.ds-btn-secondary:focus-visible{outline:2px solid #2563c9;outline-offset:2px}"
+    },
+    {
+      "name": "Navigation Track",
+      "kind": "nav",
+      "refersTo": "nav-tab-current",
+      "description": "The three destinations in a pill track; the current one is a white pill.",
+      "html": "<nav class=\"ds-nav\"><a class=\"ds-tab ds-tab-current\" href=\"#\">Analyse</a><a class=\"ds-tab\" href=\"#\">History</a><a class=\"ds-tab\" href=\"#\">About the model</a></nav>",
+      "css": ".ds-nav{display:inline-flex;gap:4px;padding:4px;border-radius:9999px;background:#e2e7ee;font:400 14px/1.4 Geist,ui-sans-serif,system-ui,sans-serif}.ds-tab{padding:8px 16px;border-radius:9999px;color:#566376;text-decoration:none;transition:color .15s ease-out}.ds-tab:hover{color:#0f1b2d}.ds-tab:focus-visible{outline:2px solid #2563c9;outline-offset:2px}.ds-tab-current{background:#fff;color:#0f1b2d;font-weight:500;box-shadow:0 1px 2px rgb(15 27 45/.04),0 10px 28px -14px rgb(15 27 45/.16)}"
+    },
+    {
+      "name": "Text Field",
+      "kind": "input",
+      "refersTo": "input",
+      "description": "Inset field; white with a blue ring on focus.",
+      "html": "<label class=\"ds-field\"><span>Username</span><input class=\"ds-input\" /></label>",
+      "css": ".ds-field{display:grid;gap:8px;font:500 14px/1.4 Geist,ui-sans-serif,system-ui,sans-serif;color:#0f1b2d}.ds-input{background:#f5f7fa;border:0;border-radius:10px;padding:10px 14px;font:400 15px/1.4 Geist,ui-sans-serif,system-ui,sans-serif;color:#0f1b2d;box-shadow:0 0 0 1px #dde3eb;transition:box-shadow .15s ease-out,background .15s ease-out}.ds-input:hover{box-shadow:0 0 0 1px #b9c6d6}.ds-input:focus{outline:none;background:#fff;box-shadow:0 0 0 2px #2563c9}"
+    },
+    {
+      "name": "Band Badges",
+      "kind": "chip",
+      "refersTo": "band-flagged",
+      "description": "Graded likelihood; colour always paired with an icon and words.",
+      "html": "<span class=\"ds-band ds-band-above\"><svg width=\"13\" height=\"13\" viewBox=\"0 0 256 256\" fill=\"currentColor\"><path d=\"M232 56v120a8 8 0 0 1-2.76 6c-15.28 13.23-29.89 18-43.82 18-18.91 0-36.57-8.74-53-16.85C105.87 170 82.79 158.61 56 179.77V224a8 8 0 0 1-16 0V56a8 8 0 0 1 2.77-6c36-31.18 68.31-15.21 96.79-1.12C167 62.46 192.79 75.22 218.76 50A8 8 0 0 1 232 56Z\"/></svg>Flagged for review</span> <span class=\"ds-band ds-band-near\">Borderline</span> <span class=\"ds-band ds-band-below\">Not flagged</span>",
+      "css": ".ds-band{display:inline-flex;align-items:center;gap:6px;border-radius:6px;padding:2px 8px;font:500 12px/1.33 Geist,ui-sans-serif,system-ui,sans-serif}.ds-band-above{background:#fff0dd;color:#8f4400}.ds-band-near{background:#fbf3d6;color:#6e5400}.ds-band-below{background:#eef1f5;color:#4a5866}"
+    },
+    {
+      "name": "Panel",
+      "kind": "card",
+      "refersTo": "panel",
+      "description": "The one container: white, 16px, panel shadow, neutral icon tile heading.",
+      "html": "<section class=\"ds-panel\"><div class=\"ds-panel-head\"><span class=\"ds-tile\"></span><h2>Findings</h2></div><p>3 findings flagged for review</p></section>",
+      "css": ".ds-panel{background:#fff;border-radius:16px;padding:24px;box-shadow:0 1px 2px rgb(15 27 45/.04),0 10px 28px -14px rgb(15 27 45/.16);font:400 14px/1.5 Geist,ui-sans-serif,system-ui,sans-serif;color:#0f1b2d}.ds-panel-head{display:flex;align-items:center;gap:12px}.ds-panel-head h2{margin:0;font-size:17px;font-weight:500;letter-spacing:-.01em}.ds-tile{width:32px;height:32px;border-radius:10px;background:#f5f7fa}.ds-panel p{margin:20px 0 0;font-size:24px;font-weight:500;letter-spacing:-.02em}"
+    },
+    {
+      "name": "Finding Row",
+      "kind": "custom",
+      "refersTo": "finding-row-selected",
+      "description": "Inset rows; the selected finding lifts with the raised shadow.",
+      "html": "<ul class=\"ds-rows\"><li class=\"ds-row ds-row-selected\">Atelectasis <em>Heatmap shown</em></li><li class=\"ds-row\">Pneumothorax <em>Show heatmap</em></li></ul>",
+      "css": ".ds-rows{list-style:none;margin:0;padding:0;display:grid;gap:8px;font:500 15px/1.4 Geist,ui-sans-serif,system-ui,sans-serif;color:#0f1b2d}.ds-row{display:flex;justify-content:space-between;background:#f5f7fa;border-radius:10px;padding:12px 14px;transition:transform .2s ease-out,box-shadow .2s ease-out,background .2s ease-out}.ds-row em{font-style:normal;font-size:12px;color:#566376}.ds-row-selected{background:#fff;transform:translateY(-1px);box-shadow:0 1px 2px rgb(15 27 45/.06),0 14px 32px -12px rgb(15 27 45/.22)}.ds-row-selected em{color:#2563c9}"
+    }
+  ],
+  "narrative": {
+    "northStar": "The Viewing Station",
+    "overview": "The chest film is the exhibit. Every working screen sets the X-ray, or the place it will go, on a centre stage, with the evidence panel beside it, the way a reporting station puts the film first and the notes second. The system stays quiet so the radiograph and the model's evidence carry the screen: a cool, light ground, white panels, and one clinical blue spent only where a clinician acts or chooses.\n\nIt is a light-only system (a user decision, recorded in PRODUCT.md) for clinicians at a laptop or desktop in daylight or office light, sometimes on a projector. Familiarity beats flourish: standard controls, one workhorse sans, and colour that always means something.",
+    "keyCharacteristics": [
+      "The film sits on a near-black stage inside a white panel; nothing ever covers the image.",
+      "60-30-10: cool pale ground, white panels, clinical blue for action, current tab, selection and focus.",
+      "Graded evidence is never colour alone: every band has an icon and words.",
+      "One elevation, one family, one corner system."
+    ],
+    "rules": [
+      {
+        "name": "The Ten Percent Rule",
+        "body": "Blue marks only something the clinician can do, has chosen, or is focused on. Section icons, bullets, avatars and decoration stay neutral; if removing the blue would not change what the user can do or knows, it should not be blue.",
+        "section": "colors"
+      },
+      {
+        "name": "The No Red/Green Rule",
+        "body": "Bands avoid red and green. \"Flagged\" is a prompt to look, not a diagnosis, and must never read as an alarm or an all-clear.",
+        "section": "colors"
+      },
+      {
+        "name": "The One Family Rule",
+        "body": "No display face, no serif. Hierarchy comes from size and weight steps of the same family.",
+        "section": "typography"
+      },
+      {
+        "name": "The Measured Numbers Rule",
+        "body": "Every number that is compared or copied uses tabular figures.",
+        "section": "typography"
+      },
+      {
+        "name": "The One Lift Rule",
+        "body": "Only the current selection rises above a panel. If two things inside a panel are raised, one of them is wrong.",
+        "section": "elevation"
+      },
+      {
+        "name": "The Radius Ladder Rule",
+        "body": "Panels 16px; rows, inputs and the film inset 10px; badges 6px; controls (buttons, tabs, the toolbar, the user chip) full pill. A shape tells you what something is: pills are pressed, 16px holds content, 10px sits inside it.",
+        "section": "shapes"
+      }
+    ],
+    "dos": [
+      "Do let the film carry the screen; keep everything around it neutral.",
+      "Do pair every state colour with an icon and words.",
+      "Do spend blue only on action, selection, current location and focus.",
+      "Do keep the toolbar and any overlay clear of the image edges, where the lung bases and costophrenic angles sit.",
+      "Do theme browser surfaces (selection, caret, scrollbar, focus) from the palette."
+    ],
+    "donts": [
+      "Don't add a dark theme or invert a section.",
+      "Don't use red or green for findings.",
+      "Don't put decorative anatomy art, invented logos or stock imagery on working screens; the uploaded film is the only image.",
+      "Don't nest panels or give a panel both a border and a shadow.",
+      "Don't use em dashes in interface copy."
+    ]
+  }
+}

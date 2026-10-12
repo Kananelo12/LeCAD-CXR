@@ -64,4 +64,6 @@ desktop.ini
 .vscode/
 .idea/
 
+# Impeccable review captures (regenerated per review)
+.impeccable/review/
 learn.md
