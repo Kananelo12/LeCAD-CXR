@@ -150,15 +150,25 @@ recorded earlier can.
 
 ## 9. Use the trained model
 
-After training (docs/training-guide.md), download `best.pt` from the
-Kaggle run and put it under `ml/artifacts/runs/<run name>/`. Then in `.env`:
+The deployed model is DenseNet-121 at the 90%-sensitivity operating point
+(`docs/model-card.md`, *Model selection and operating point*):
+`ml/artifacts/runs/baseline-densenet121-20261010-201111/model_sens90.pt`.
+If it isn't on this laptop, collect it from the training machine (C8 in
+`docs/training-guide.md`), or rebuild it from `best.pt` and the validation
+predictions with `ml/scripts/set_operating_point.py`.
 
-1. Add `LECAD_MODEL_PATH=./ml/artifacts/runs/<run name>/best.pt`
-2. Delete the `LECAD_FAKE_MODEL=1` line (only one of the two may be set).
+In `.env`:
 
-Restart the API (step 5). The model version becomes the architecture
-plus the first 12 characters of the checkpoint file's SHA-256 (e.g.
-`densenet121-3f9a…`), so each audit row names the exact weights used.
+1. Set the **full path** (a relative path depends on the folder the API is
+   started from):
+   `LECAD_MODEL_PATH=D:/Work/LeCAD-CXR/ml/artifacts/runs/baseline-densenet121-20261010-201111/model_sens90.pt`
+2. Delete any `LECAD_FAKE_MODEL=1` line (only one of the two may be set).
+
+Restart the API (step 5). The model version becomes the architecture plus
+the first 12 characters of the checkpoint file's SHA-256
+(`densenet121-00cd10b12611` for the deployed file), so each audit row names
+the exact weights and thresholds used. On a laptop CPU, one analysis,
+Grad-CAM included, takes about 0.25–0.5 s.
 
 The checkpoint is loaded with `weights_only=True`: a tampered file cannot
 run code when it is loaded.

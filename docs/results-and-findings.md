@@ -464,7 +464,10 @@ reasons are in `docs/decisions/0001-architecture.md`:
   findings.
 - **Model in service:** DenseNet-121 at the 90%-sensitivity operating point
   (`model_sens90.pt`), loaded under PyTorch's restricted loader, which
-  refuses executable content.
+  refuses executable content. An end-to-end check (2026-10-12) passed on a
+  laptop CPU without a GPU: sign-in, analysis of real radiographs, Grad-CAM,
+  history, and verification of the audit chain. Each analysis took
+  **0.25–0.5 s**.
 
 > *Placeholder: demonstration on unseen cases and participants' usability
 > comments (DSRM activity 4).*
@@ -485,7 +488,7 @@ during evaluation.
 | Performance comparable to published models | Test macro AUC 0.798 vs 0.806–0.810 for the best official-split results; above the original benchmark, 0.745 (§4.9) | **Met, slightly below the state of the art** |
 | Visual explanation of each prediction | Grad-CAM heatmap per flagged finding (§4.10) | **Implemented**; quality to be assessed in the demonstration |
 | Graded confidence | Above / near / below bands with probability and threshold (§4.10) | **Implemented** |
-| Feasible on locally available computing | 28 MB model served on CPU; one model trains for about US$0.60 of cloud GPU (§4.5.1) | **Supported**; CPU inference time to be measured |
+| Feasible on locally available computing | 28 MB model; one analysis, Grad-CAM included, takes 0.25–0.5 s on a laptop CPU with no GPU; one model trains for about US$0.60 of cloud GPU (§4.5.1) | **Met** |
 | Sensitivity ≥ 90% per finding (adopted during evaluation) | 13 of 14 findings at 0.91–0.97 on test (§4.8) | **Met for 13 of 14** |
 | — Hernia | 0.63 [0.47, 0.77] on test | **Not met: known limitation** |
 
