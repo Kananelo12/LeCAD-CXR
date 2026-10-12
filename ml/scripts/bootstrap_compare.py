@@ -60,8 +60,18 @@ def spec_at_sens(y: np.ndarray, s: np.ndarray, target: float) -> float:
     return float(np.mean(neg < threshold))
 
 
+def rate_at(y: np.ndarray, s: np.ndarray, threshold: float, stat: str) -> float:
+    """Sensitivity or specificity at a FIXED threshold (flag when s >= t)."""
+    group = s[y == 1] if stat == "sensitivity" else s[y == 0]
+    if len(group) == 0:
+        return float("nan")
+    flagged = group >= threshold
+    return float(np.mean(flagged if stat == "sensitivity" else ~flagged))
+
+
 def per_class(y: np.ndarray, p: np.ndarray, metric) -> np.ndarray:
-    return np.array([metric(y[:, k], p[:, k]) for k in range(y.shape[1])])
+    """metric(y, s, k) for each finding k."""
+    return np.array([metric(y[:, k], p[:, k], k) for k in range(y.shape[1])])
 
 
 def ci(samples: np.ndarray) -> tuple[float, float]:
@@ -78,17 +88,35 @@ def main() -> None:
     ap.add_argument("--view", choices=("PA", "AP"), help="restrict to one view position")
     ap.add_argument("--spec-at-sens", type=float, metavar="S",
                     help="compare specificity at sensitivity S (e.g. 0.90) instead of AUC")
+    ap.add_argument("--at-thresholds", type=Path, metavar="JSON",
+                    help="fixed per-finding thresholds (operating_point_*.json) for --stat")
+    ap.add_argument("--stat", choices=("sensitivity", "specificity"),
+                    help="with --at-thresholds: which rate to report")
     args = ap.parse_args()
 
-    if args.spec_at_sens:
+    if args.at_thresholds:
+        if not args.stat:
+            raise SystemExit("--at-thresholds needs --stat sensitivity|specificity")
+        fixed = json.loads(args.at_thresholds.read_text())
+        stat = args.stat
+
+        def metric(y, s, k):
+            return rate_at(y, s, fixed[labels[k]]["threshold"], stat)
+
+        mname = f"{stat.capitalize()} at fixed thresholds ({args.at_thresholds.stem})"
+        mtag = f"_{stat[:4]}_{args.at_thresholds.stem}"
+    elif args.spec_at_sens:
         target = args.spec_at_sens
 
-        def metric(y, s):
+        def metric(y, s, k):
             return spec_at_sens(y, s, target)
 
         mname, mtag = f"Specificity at {target:.0%} sensitivity", f"_spec{round(target * 100)}"
     else:
-        metric, mname, mtag = auc, "AUC", ""
+        def metric(y, s, k):
+            return auc(y, s)
+
+        mname, mtag = "AUC", ""
 
     root = PATHS.artifacts / "runs"
     names = args.runs or sorted(

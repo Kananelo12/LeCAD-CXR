@@ -294,6 +294,69 @@ test evaluation measures how well this pre-chosen operating point holds.
 (Validation figures; thresholds were fitted to these images, so these
 sensitivities hold by construction. The test set gives the honest figures.)
 
+## Test results (opened once, 2026-10-12)
+
+The official NIH test set: 25,596 images, 2,797 patients, never used for any
+decision. It was evaluated **once**, with the deployed model
+(`model_sens90.pt`) and its pre-chosen thresholds, on 1 × T4. The thresholds
+rebuilt on Lightning matched the recorded ones exactly. 95% CIs come from a
+patient-level bootstrap (2,000 rounds, `bootstrap_compare.py --name test`).
+
+| | Test | 95% CI | Validation |
+|---|---:|---:|---:|
+| **Macro AUC** | **0.7983** | [0.7914, 0.8040] | 0.8297 |
+| **Macro sensitivity** (fixed thresholds) | **0.9213** | [0.9093, 0.9324] | 0.904 |
+| Macro specificity (fixed thresholds) | 0.4015 | [0.3921, 0.4114] | 0.545 |
+| PA / AP macro AUC | 0.7936 / 0.7732 | | 0.8291 / 0.7812 |
+| Adults 18+ macro AUC | 0.7988 | | 0.8286 |
+| AP share of images | 57% | | 36% |
+
+| Finding | n pos | AUC [95% CI] | Sensitivity [95% CI] | Specificity [95% CI] | Val AUC | Val sens / spec |
+|---|---:|---:|---:|---:|---:|---:|
+| Atelectasis | 3,279 | 0.751 [0.74, 0.76] | 0.919 [0.90, 0.93] | 0.347 [0.32, 0.37] | 0.812 | 0.901 / 0.531 |
+| Cardiomegaly | 1,069 | 0.892 [0.88, 0.90] | 0.929 [0.91, 0.95] | 0.626 [0.60, 0.65] | 0.909 | 0.930 / 0.740 |
+| Effusion | 4,658 | 0.817 [0.81, 0.83] | 0.940 [0.93, 0.95] | 0.447 [0.42, 0.47] | 0.889 | 0.900 / 0.721 |
+| Infiltration | 6,112 | 0.697 [0.69, 0.71] | 0.960 [0.95, 0.97] | 0.132 [0.12, 0.14] | 0.700 | 0.901 / 0.311 |
+| Mass | 1,748 | 0.812 [0.79, 0.83] | 0.965 [0.95, 0.97] | 0.277 [0.26, 0.30] | 0.816 | 0.901 / 0.415 |
+| Nodule | 1,623 | 0.732 [0.71, 0.75] | 0.938 [0.92, 0.95] | 0.240 [0.22, 0.26] | 0.754 | 0.902 / 0.321 |
+| Pneumonia | 555 | 0.695 [0.67, 0.72] | 0.942 [0.92, 0.96] | 0.227 [0.21, 0.24] | 0.746 | 0.902 / 0.366 |
+| Pneumothorax | 2,665 | 0.849 [0.83, 0.86] | 0.957 [0.94, 0.97] | 0.422 [0.40, 0.45] | 0.838 | 0.902 / 0.529 |
+| Consolidation | 1,815 | 0.739 [0.72, 0.75] | 0.971 [0.96, 0.98] | 0.227 [0.21, 0.24] | 0.802 | 0.900 / 0.518 |
+| Edema | 925 | 0.834 [0.82, 0.85] | 0.948 [0.93, 0.96] | 0.475 [0.45, 0.50] | 0.905 | 0.904 / 0.732 |
+| Emphysema | 1,093 | 0.889 [0.87, 0.90] | 0.944 [0.92, 0.96] | 0.513 [0.49, 0.54] | 0.887 | 0.900 / 0.617 |
+| Fibrosis | 435 | 0.804 [0.78, 0.83] | 0.913 [0.88, 0.94] | 0.425 [0.40, 0.45] | 0.802 | 0.902 / 0.453 |
+| Pleural Thickening | 1,143 | 0.759 [0.74, 0.78] | 0.945 [0.93, 0.96] | 0.306 [0.28, 0.33] | 0.790 | 0.902 / 0.424 |
+| Hernia | 86 | 0.906 [0.85, 0.95] | 0.628 [0.47, 0.77] | 0.957 [0.95, 0.96] | 0.965 | 0.909 / 0.949 |
+
+**Findings.**
+1. **Discrimination: macro AUC 0.798 [0.791, 0.804].** This is lower than
+   validation (0.830, outside the test interval), so the drop is real. It is
+   consistent with the known shift between NIH train_val and test:
+   - the test set has more disease (see `splits.py`)
+   - 57% of test images are AP films, against 36% in validation, and every
+     model is weaker on AP films
+
+   To be compared with published results on the same official split
+   (literature review chapter).
+2. **The sensitivity objective holds for 13 of 14 findings**, at 0.91–0.97
+   on unseen data. Lower CI bounds are at or near 0.90 throughout (lowest:
+   Fibrosis 0.88). On these images, scores run higher than on validation, so
+   the fixed thresholds catch *more* than the 90% target.
+3. **Hernia fails the objective: sensitivity 0.628 [0.47, 0.77].** Its
+   threshold was fitted to 22 validation cases, too few to fix a reliable
+   operating point. Its AUC remains high (0.906), so the model ranks Hernia
+   well; it is the threshold that did not transfer.
+4. **Specificity fell sharply** (macro 0.40; Infiltration 0.13, Nodule 0.24,
+   Pneumonia and Consolidation 0.23). The same score shift that raised
+   sensitivity raises false alarms. A threshold fitted to one population
+   drifts on another, which is direct evidence for the local
+   re-calibration requirement in *Limitations*.
+
+Under the DSRM, finding 3 is an objective not met: it is to be taken back to
+design and development (e.g. a Hernia threshold fitted with more positives,
+or Hernia reported only as a ranked score). This must not be fixed by tuning
+on the test set.
+
 ## Limitations
 - Labels are NLP-mined from reports, not image annotations.
 - "No Finding" ≠ normal.
@@ -308,7 +371,8 @@ sensitivities hold by construction. The test set gives the honest figures.)
 - Test set prevalence is systematically higher than train_val, so
   threshold-dependent metrics shift between validation and test.
 - At the 90%-sensitivity operating point, specificity is low for some
-  findings: 0.31 for Infiltration and 0.32 for Nodule on validation. About
+  findings: 0.31 for Infiltration and 0.32 for Nodule on validation, and
+  0.13 and 0.24 on test. About
   two in three healthy images get flagged for those findings. The output is
   only usable as decision support reviewed by a clinician, never as a
   diagnosis.
@@ -328,6 +392,10 @@ sensitivities hold by construction. The test set gives the honest figures.)
   (18+) validation result is reported alongside the overall one. *(EDA §5)*
 - The class-weight cap (50) under-weights the five rarest classes; Hernia
   by about 12×. *(EDA §2)*
+- Thresholds do not transfer reliably. On test, sensitivity rose and
+  specificity fell for every finding. Hernia's threshold, fitted to 22
+  cases, caught only 63% of test cases. Any new population (including
+  Lesotho) needs thresholds re-fitted on local validation data.
 
 ## Ethical considerations
 No patient-identifiable data used. Images are from a public de-identified
