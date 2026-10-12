@@ -61,10 +61,12 @@ describe("Analyse", () => {
   it("orders flagged findings first and shows the strongest heatmap", async () => {
     const prediction = mockPrediction("00".repeat(32));
     prediction.findings = prediction.findings.map((f) =>
+      // Ranked by score relative to each review level: Effusion is 3x its
+      // level, Mass 1.5x.
       f.label === "Effusion"
-        ? { ...f, probability: 0.6, band: "above" }
+        ? { ...f, probability: 0.6, threshold: 0.2, band: "above" }
         : f.label === "Mass"
-          ? { ...f, probability: 0.3, band: "above" }
+          ? { ...f, probability: 0.3, threshold: 0.2, band: "above" }
           : { ...f, probability: 0, band: "below" },
     );
     prediction.heatmaps = { Effusion: [[0, 1], [1, 0]], Mass: [[1, 0], [0, 1]] };
@@ -75,13 +77,37 @@ describe("Analyse", () => {
     await chooseAndConfirm(user);
     await user.click(screen.getByRole("button", { name: /analyse image/i }));
 
-    expect(await screen.findByRole("heading", { name: "2 findings flagged for review" })).toBeVisible();
+    expect(
+      await screen.findByRole("heading", { name: "Review suggested for Effusion and Mass" }),
+    ).toBeVisible();
     const pressed = screen.getByRole("button", { pressed: true });
     expect(pressed.closest("li")).toHaveTextContent("Effusion");
-    expect(screen.getByText(/Heatmap for/)).toHaveTextContent("Effusion");
+    expect(screen.getByText(/Highlighted for/)).toHaveTextContent("Effusion");
+    expect(pressed).toHaveTextContent("On film");
 
-    await user.click(within(screen.getByText("Mass").closest("li")!).getByRole("button"));
-    expect(screen.getByText(/Heatmap for/)).toHaveTextContent("Mass");
+    const massRow = screen.getAllByText("Mass").map((el) => el.closest("li")).find(Boolean)!;
+    await user.click(within(massRow).getByRole("button"));
+    expect(screen.getByText(/Highlighted for/)).toHaveTextContent("Mass");
+  });
+
+  it("keeps audit details out of the reading flow, and warns on Hernia", async () => {
+    const prediction = mockPrediction("cd".repeat(32));
+    prediction.findings = prediction.findings.map((f) =>
+      f.label === "Hernia" ? { ...f, probability: 0.9, band: "above" } : { ...f, band: "below" },
+    );
+    prediction.heatmaps = {};
+    server.use(http.post("/api/predict", () => HttpResponse.json(prediction)));
+
+    const user = userEvent.setup();
+    renderWithQuery(<Analyse />);
+    await chooseAndConfirm(user);
+    await user.click(screen.getByRole("button", { name: /analyse image/i }));
+
+    expect(await screen.findByText(/The image was not saved/)).toBeVisible();
+    expect(screen.getByText("cd".repeat(32))).not.toBeVisible();
+    await user.click(screen.getByText("Audit details"));
+    expect(screen.getByText("cd".repeat(32))).toBeVisible();
+    expect(screen.getByText(/Often missed by this tool/)).toBeVisible();
   });
 
   it("shows the server's message when the upload is refused", async () => {
@@ -105,7 +131,9 @@ describe("Analyse focus", () => {
     renderWithQuery(<Analyse />);
     await chooseAndConfirm(user);
     await user.click(screen.getByRole("button", { name: /analyse image/i }));
-    const heading = await screen.findByRole("heading", { name: /flagged for review/ });
+    const heading = await screen.findByRole("heading", {
+      name: /Review suggested for|No finding detected/,
+    });
     expect(heading).toHaveFocus();
   });
 });

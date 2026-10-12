@@ -42,11 +42,12 @@ export function ModelMetrics() {
             {model.data.architecture})
             {model.data.validation.n_images !== null &&
               `, measured on ${model.data.validation.n_images.toLocaleString()} validation images`}
-            . Macro AUC{" "}
+            . Overall accuracy (macro AUC){" "}
             <span className="font-medium text-ink tabular-nums">
               {fmt(model.data.validation.macro_auc, 3)}
             </span>
-            . AUC ranges from 0.5 (chance) to 1 (perfect).
+            . AUC measures how well the tool ranks images with a finding above images
+            without it: 0.5 is chance, 1 is perfect.
           </p>
           <div className="mt-5 overflow-x-auto">
             <table className="w-full text-left text-sm">
@@ -54,7 +55,7 @@ export function ModelMetrics() {
                 <tr className="bg-surface-2 [&>th:first-child]:rounded-l-[10px] [&>th:last-child]:rounded-r-[10px]">
                   <th scope="col" className={`${cell} py-2.5 font-medium`}>Finding</th>
                   <th scope="col" className={`${cell} py-2.5 text-right font-medium`}>Positive images</th>
-                  <th scope="col" className={`${cell} py-2.5 text-right font-medium`}>AUC</th>
+                  <th scope="col" className={`${cell} py-2.5 text-right font-medium`}>Accuracy (AUC)</th>
                   <th scope="col" className={`${cell} py-2.5 text-right font-medium`}>Sensitivity</th>
                   <th scope="col" className={`${cell} py-2.5 text-right font-medium`}>Specificity</th>
                 </tr>
@@ -68,7 +69,7 @@ export function ModelMetrics() {
                         {labelName(label)}
                         {m.sparse && (
                           <span className="ml-2 rounded-md px-1.5 py-0.5 text-xs text-muted ring-1 ring-line">
-                            low-confidence
+                            less reliable
                           </span>
                         )}
                       </th>
@@ -83,7 +84,8 @@ export function ModelMetrics() {
             </table>
           </div>
           <p className="mt-4 text-xs leading-relaxed text-muted">
-            Sensitivity and specificity are at each finding&apos;s flagging threshold.
+            Sensitivity and specificity are at each finding&apos;s review level, set to catch
+            at least 9 in 10 cases on validation data.
             Validation data come from the same institution as training data, so they likely
             overstate performance elsewhere.
           </p>

@@ -43,16 +43,16 @@ export default function AboutPage() {
               </li>
               <li>Training labels were mined from reports by software, not drawn on images.</li>
               <li>
-                &ldquo;Not flagged&rdquo; is not &ldquo;normal&rdquo;: the model only looks for
-                14 findings.
+                &ldquo;Not detected by this tool&rdquo; is not &ldquo;normal&rdquo;: the tool
+                only looks for 14 findings.
               </li>
               <li>
-                Hernia, Pneumonia and Fibrosis had few training examples. Their estimates are
-                marked low-confidence.
+                Hernia, Pneumonia and Fibrosis had few training examples, so their results are
+                marked less reliable. Hernia is often missed: do not rely on its absence.
               </li>
               <li>
-                Bedside (AP) films, markers and lines can influence the model. Check the heatmap
-                against the anatomy.
+                Bedside (AP) films, markers and lines can influence the tool. Check the
+                highlights against the anatomy.
               </li>
             </ul>
           </section>

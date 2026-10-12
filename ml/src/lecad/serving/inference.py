@@ -78,10 +78,16 @@ class Predictor(Protocol):
 
 
 def heatmap_labels(probabilities: list[float], thresholds: list[float]) -> list[int]:
-    """Indices that get a heatmap: flagged findings, strongest first."""
+    """Indices that get a heatmap: flagged findings, strongest first.
+
+    "Strongest" is relative to each finding's own review level (score /
+    threshold), not the raw score: raw scores are not comparable across
+    findings, whose thresholds differ (0.10 to 0.39 for the deployed model).
+    The interface orders and labels findings by the same measure.
+    """
     flagged = [i for i, (p, t) in enumerate(zip(probabilities, thresholds, strict=True))
                if p >= t]
-    flagged.sort(key=lambda i: probabilities[i], reverse=True)
+    flagged.sort(key=lambda i: probabilities[i] / max(thresholds[i], 1e-9), reverse=True)
     return flagged[:HEATMAP_LIMIT]
 
 

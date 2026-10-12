@@ -57,8 +57,8 @@ export function HistoryTable() {
           </span>
           <p className="font-medium">You have not analysed any images yet.</p>
           <p className="max-w-[46ch] text-sm text-muted">
-            Each analysis you run appears here with its time, flagged findings and image
-            fingerprint.
+            Each analysis you run appears here with its time and the findings it suggested
+            for review.
           </p>
           <Link href="/analyse" className={buttonClass("primary", "mt-2")}>
             Analyse an image
@@ -70,9 +70,8 @@ export function HistoryTable() {
             <thead className="text-muted">
               <tr className="bg-surface-2 [&>th:first-child]:rounded-l-[10px] [&>th:last-child]:rounded-r-[10px]">
                 <th scope="col" className={`${cell} py-2.5 font-medium`}>When</th>
-                <th scope="col" className={`${cell} py-2.5 font-medium`}>Flagged for review</th>
-                <th scope="col" className={`${cell} py-2.5 font-medium`}>Image fingerprint</th>
-                <th scope="col" className={`${cell} py-2.5 font-medium`}>Model</th>
+                <th scope="col" className={`${cell} py-2.5 font-medium`}>Review suggested</th>
+                <th scope="col" className={`${cell} py-2.5 font-medium`}>Reference</th>
               </tr>
             </thead>
             <tbody className="divide-y divide-line">
@@ -94,10 +93,15 @@ export function HistoryTable() {
                       <span className="text-muted">None</span>
                     )}
                   </td>
-                  <td className={`${cell} font-mono text-[13px]`} title={item.image_sha256}>
-                    {item.image_sha256.slice(0, 12)}…
+                  {/* A short code to find this analysis in the audit log; the full
+                      image fingerprint and model version are in the tooltip. */}
+                  <td
+                    className={`${cell} font-mono text-[13px] text-muted`}
+                    title={`Image fingerprint ${item.image_sha256}
+Model ${item.model_version}`}
+                  >
+                    {item.image_sha256.slice(0, 8)}
                   </td>
-                  <td className={`${cell} font-mono text-[13px] text-muted`}>{item.model_version}</td>
                 </tr>
               ))}
             </tbody>

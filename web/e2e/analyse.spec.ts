@@ -37,8 +37,11 @@ test("sign in, analyse an image, and find it in history", async ({ page }) => {
   await submit.click();
 
   await expect(page.getByText("Decision support only")).toBeVisible({ timeout: 15_000 });
-  await expect(page.getByRole("heading", { name: /flagged for review/ })).toBeVisible();
-  const fingerprint = (await page.locator("dd .font-mono").first().textContent())!.trim();
+  await expect(
+    page.getByRole("heading", { name: /Review suggested for|No finding detected/ }),
+  ).toBeVisible();
+  await page.getByText("Audit details").click();
+  const fingerprint = (await page.locator("dd .font-mono").nth(1).textContent())!.trim();
   expect(fingerprint).toMatch(/^[0-9a-f]{64}$/);
 
   await page.getByRole("link", { name: "History" }).click();

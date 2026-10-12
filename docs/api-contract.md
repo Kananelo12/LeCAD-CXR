@@ -110,9 +110,9 @@ order. The frontend sorts for display.
 
   | Band | Rule | UI wording |
   |---|---|---|
-  | `above` | `probability >= threshold` | Flagged for review |
-  | `near` | `0.5 * threshold <= probability < threshold` | Borderline |
-  | `below` | `probability < 0.5 * threshold` | Not flagged |
+  | `above` | `probability >= threshold` | Review suggested |
+  | `near` | `0.5 * threshold <= probability < threshold` | Weaker signal |
+  | `below` | `probability < 0.5 * threshold` | Not detected by this tool |
 
   The `near` margin (half the threshold) is provisional and to be reviewed
   with the supervisor.
@@ -120,7 +120,9 @@ order. The frontend sorts for display.
   these as low-confidence estimates.
 
 **`heatmaps`** — Grad-CAM for each finding whose band is `above`, at most
-five (the highest probabilities). Keys are labels. Each value is a
+five: the highest `probability / threshold`, i.e. strongest relative to each
+finding's own review level (raw scores are not comparable across findings).
+Keys are labels. Each value is a
 row-major grid of numbers in 0–1, top row first, at the target layer's
 resolution (e.g. 7×7 for DenseNet-121 at 224 px). The grid covers the
 **whole** image: eval preprocessing resizes to a square without cropping,

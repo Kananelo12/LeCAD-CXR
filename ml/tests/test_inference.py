@@ -85,6 +85,14 @@ def test_heatmap_labels_strongest_first_and_capped():
     assert heatmap_labels(probs, [0.2] * 14) == [6, 0, 3, 4, 5]
 
 
+def test_heatmap_labels_rank_relative_to_each_threshold():
+    probs = [0.0] * 14
+    thresholds = [0.5] * 14
+    probs[0], thresholds[0] = 0.60, 0.40  # 1.5 x its level
+    probs[1], thresholds[1] = 0.30, 0.10  # 3.0 x its level: ranked first despite a lower score
+    assert heatmap_labels(probs, thresholds) == [1, 0]
+
+
 def test_decode_rejects_decompression_bomb():
     buf = io.BytesIO()
     Image.new("1", (8000, 8000)).save(buf, "PNG")  # tiny file, 64M pixels

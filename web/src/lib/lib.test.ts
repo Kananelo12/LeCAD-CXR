@@ -1,12 +1,39 @@
 import { describe, expect, it } from "vitest";
 import { alpha, colour } from "./heatmap";
-import { labelName } from "./labels";
+import { BAND_TEXT, joinNames, labelName, signalStrength } from "./labels";
 import { safeNext } from "./auth";
 
 describe("labelName", () => {
   it("humanises dataset labels", () => {
     expect(labelName("Pleural_Thickening")).toBe("Pleural thickening");
     expect(labelName("Mass")).toBe("Mass");
+  });
+});
+
+describe("clinical wording", () => {
+  it("keeps the dataset's finding names", () => {
+    expect(labelName("Effusion")).toBe("Effusion");
+    expect(labelName("Hernia")).toBe("Hernia");
+  });
+
+  it("uses the agreed band wording", () => {
+    expect(BAND_TEXT).toEqual({
+      above: "Review suggested",
+      near: "Weaker signal",
+      below: "Not detected by this tool",
+    });
+  });
+
+  it("groups signal strength by distance above the review level", () => {
+    expect(signalStrength(0.8, 0.4)).toBe("Strong");
+    expect(signalStrength(0.6, 0.4)).toBe("Moderate");
+    expect(signalStrength(0.45, 0.4)).toBe("Slight");
+  });
+
+  it("joins names as a reader would", () => {
+    expect(joinNames(["Mass"])).toBe("Mass");
+    expect(joinNames(["Mass", "Nodule"])).toBe("Mass and Nodule");
+    expect(joinNames(["Mass", "Nodule", "Edema"])).toBe("Mass, Nodule and Edema");
   });
 });
 

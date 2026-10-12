@@ -63,7 +63,7 @@ export function XrayViewer({ src, mapped, selected, heatmap, onSelect }: Props) 
               className={iconButton}
               onClick={() => step(-1)}
               disabled={mapped.length < 2}
-              aria-label="Previous finding's heatmap"
+              aria-label="Previous finding's highlight"
             >
               <CaretLeft size={16} weight="bold" />
             </button>
@@ -75,7 +75,7 @@ export function XrayViewer({ src, mapped, selected, heatmap, onSelect }: Props) 
               className={iconButton}
               onClick={() => step(1)}
               disabled={mapped.length < 2}
-              aria-label="Next finding's heatmap"
+              aria-label="Next finding's highlight"
             >
               <CaretRight size={16} weight="bold" />
             </button>
@@ -90,9 +90,13 @@ export function XrayViewer({ src, mapped, selected, heatmap, onSelect }: Props) 
               }`}
             >
               {visible ? <Eye aria-hidden size={17} /> : <EyeSlash aria-hidden size={17} />}
-              Heatmap
+              Highlights
             </button>
+            <label htmlFor="highlight-intensity" className={`ml-1 text-sm ${visible ? "text-muted" : "text-muted/50"}`}>
+              Intensity
+            </label>
             <input
+              id="highlight-intensity"
               type="range"
               min={0.1}
               max={1}
@@ -100,8 +104,7 @@ export function XrayViewer({ src, mapped, selected, heatmap, onSelect }: Props) 
               value={opacity}
               disabled={!visible}
               onChange={(e) => setOpacity(Number(e.target.value))}
-              aria-label="Heatmap opacity"
-              className="mx-2 w-24 disabled:opacity-40"
+              className="mr-2 w-24 disabled:opacity-40"
             />
           </div>
         )}
@@ -111,17 +114,18 @@ export function XrayViewer({ src, mapped, selected, heatmap, onSelect }: Props) 
         {heatmap && selected ? (
           <>
             <p className="max-w-[60ch] text-muted">
-              Heatmap for <strong className="font-medium text-ink">{labelName(selected)}</strong>:
-              the regions that most influenced this score. It is not an outline of a lesion.
+              Highlighted for <strong className="font-medium text-ink">{labelName(selected)}</strong>:
+              where the tool looked when scoring it. A guide to where to look, not an outline
+              of the abnormality.
             </p>
             <span className="flex items-center gap-2 text-muted" aria-hidden>
-              weaker
+              less
               <span className="h-1.5 w-20 rounded-full bg-linear-to-r from-[#57106e] via-[#f98e09] to-[#fcffa4]" />
-              stronger
+              more influence
             </span>
           </>
         ) : (
-          <p className="text-muted">No heatmap: no finding was flagged for review.</p>
+          <p className="text-muted">No highlights: no finding was detected for review.</p>
         )}
       </figcaption>
     </figure>

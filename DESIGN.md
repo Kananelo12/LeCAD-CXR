@@ -175,10 +175,10 @@ screen, white panels carry the content, clinical blue is the 10%.
 - **Slate** (#566376): secondary text (5.4:1 on Ground, 6.1:1 on Panel).
 
 ### State
-- **Flag Amber** (#8f4400 on #fff0dd): "Flagged for review" and flagged
+- **Flag Amber** (#8f4400 on #fff0dd): "Review suggested" and suggested
   labels in History.
-- **Borderline Ochre** (#6e5400 on #fbf3d6): "Borderline".
-- **Clear Slate** (#4a5866 on #eef1f5): "Not flagged".
+- **Borderline Ochre** (#6e5400 on #fbf3d6): "Weaker signal".
+- **Clear Slate** (#4a5866 on #eef1f5): "Not detected by this tool".
 - **Caution Brown** (#6b3d00 on #fff7ea): the per-prediction disclaimer.
 - **Error Red** (#b42318): form and request errors.
 

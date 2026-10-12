@@ -17,8 +17,15 @@ fixtures. When FastAPI is built to the contract, mocking is switched off
 and no frontend code changes.
 
 **Graded likelihood bands first, numbers second.** Each finding is shown as
-*Flagged for review / Borderline / Not flagged*, relative to its
-validation-chosen threshold. The raw model output is available in a
+*Review suggested / Weaker signal / Not detected by this tool*, relative to
+its validation-chosen threshold. (Revised 2026-10-12 from *Flagged for
+review / Borderline / Not flagged*, in clinician-facing language. The
+dataset's finding names are deliberately unchanged, because they are the
+terms clinicians read. Suggested findings are ordered and labelled
+Strong / Moderate / Slight by score relative to their own threshold, at
+least 2x and 1.4x; a display grouping, not a validated measure. Raw scores
+and the audit record sit in a closed *Audit details* section, out of the
+reading flow.) The raw model output is available in a
 detail view, labelled as a model score rather than a probability of
 disease. This is the automation-bias mitigation named in the model card:
 graded likelihood with Grad-CAM evidence rather than categorical

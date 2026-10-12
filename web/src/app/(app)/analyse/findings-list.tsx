@@ -1,10 +1,10 @@
 "use client";
 
-import { CaretRight, CircleHalf, Flag, ListMagnifyingGlass, Minus } from "@phosphor-icons/react";
+import { CaretRight, CircleHalf, Eye, Flag, ListMagnifyingGlass, Minus, Warning } from "@phosphor-icons/react";
 import { useEffect, useRef, type ComponentType } from "react";
 import { Panel, PanelHeading } from "@/components/ui";
 import type { Band, Finding, Label, Prediction } from "@/lib/api/schemas";
-import { BAND_TEXT, labelName } from "@/lib/labels";
+import { BAND_TEXT, FINDING_NOTE, joinNames, labelName, relativeScore, signalStrength } from "@/lib/labels";
 
 type IconType = ComponentType<{ size?: number; weight?: "regular" | "bold" | "fill"; "aria-hidden"?: boolean }>;
 
@@ -24,6 +24,18 @@ export function BandBadge({ band }: { band: Band }) {
   );
 }
 
+// The summary names what to look at, like a report's impression line.
+const NAMED_IN_SUMMARY = 3;
+
+function summaryText(suggested: Finding[]): string {
+  if (suggested.length === 0) return "No finding detected for review";
+  const names = suggested.slice(0, NAMED_IN_SUMMARY).map((f) => labelName(f.label));
+  const more = suggested.length - names.length;
+  return more > 0
+    ? `Review suggested for ${names.join(", ")} and ${more} more`
+    : `Review suggested for ${joinNames(names)}`;
+}
+
 type Props = {
   prediction: Prediction;
   selected: Label | null;
@@ -36,11 +48,11 @@ export function FindingsList({ prediction, selected, onSelect }: Props) {
   const summary = useRef<HTMLHeadingElement>(null);
   useEffect(() => summary.current?.focus(), []);
 
-  const byScore = [...prediction.findings].sort((a, b) => b.probability - a.probability);
-  const group = (band: Band) => byScore.filter((f) => f.band === band);
-  const flagged = group("above");
-  const near = group("near");
-  const below = group("below");
+  const byStrength = [...prediction.findings].sort((a, b) => relativeScore(b) - relativeScore(a));
+  const group = (band: Band) => byStrength.filter((f) => f.band === band);
+  const suggested = group("above");
+  const weaker = group("near");
+  const notDetected = group("below");
 
   const row = (f: Finding) => (
     <FindingRow
@@ -61,36 +73,47 @@ export function FindingsList({ prediction, selected, onSelect }: Props) {
           id="findings-summary"
           ref={summary}
           tabIndex={-1}
-          className="text-2xl font-medium tracking-[-0.02em]"
+          className="text-2xl font-medium tracking-[-0.02em] text-balance"
         >
-          {flagged.length === 0
-            ? "No findings flagged for review"
-            : `${flagged.length} ${flagged.length === 1 ? "finding" : "findings"} flagged for review`}
+          {summaryText(suggested)}
         </h3>
         <p className="mt-1.5 text-sm text-muted">
-          The model checks for 14 findings only. &ldquo;Not flagged&rdquo; does not mean the
-          image is normal.
+          This tool looks for 14 findings only. What it does not detect still needs your own
+          read.
         </p>
       </div>
 
-      {flagged.length > 0 && <ul className="mt-5 space-y-2">{flagged.map(row)}</ul>}
+      {suggested.length > 0 && (
+        <section aria-labelledby="suggested-heading" className="mt-5">
+          <h4 id="suggested-heading" className="sr-only">{BAND_TEXT.above}</h4>
+          <ul className="space-y-2">{suggested.map(row)}</ul>
+        </section>
+      )}
 
-      {near.length > 0 && (
-        <section aria-labelledby="near-heading" className="mt-6">
-          <h4 id="near-heading" className="mb-2 text-sm font-medium text-muted">
-            Borderline: below the flagging threshold, but within half of it
+      {weaker.length > 0 && (
+        <section aria-labelledby="weaker-heading" className="mt-6">
+          <h4 id="weaker-heading" className="mb-2 text-sm font-medium text-muted">
+            Weaker signals, worth a glance
           </h4>
-          <ul className="space-y-2">{near.map(row)}</ul>
+          <ul className="space-y-2">{weaker.map(row)}</ul>
         </section>
       )}
 
       <details className="group mt-6">
         <summary className="flex cursor-pointer list-none items-center gap-2 rounded-[10px] text-sm font-medium text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
           <CaretRight aria-hidden size={14} weight="bold" className="transition-transform duration-150 group-open:rotate-90" />
-          Not flagged ({below.length})
+          {BAND_TEXT.below} ({notDetected.length})
         </summary>
-        <ul className="mt-2 space-y-2">{below.map(row)}</ul>
+        <ul className="mt-2 space-y-2">{notDetected.map(row)}</ul>
       </details>
+
+      {suggested.length > 0 && (
+        <p className="mt-6 text-xs leading-relaxed text-muted">
+          Signal strength shows how far each finding&apos;s score sits above its review level
+          (strong: at least twice the level). It orders the findings; it is not the chance
+          that disease is present.
+        </p>
+      )}
     </Panel>
   );
 }
@@ -107,16 +130,22 @@ function FindingRow({
   onSelect: () => void;
 }) {
   const name = labelName(finding.label);
+  const note = FINDING_NOTE[finding.label];
   const head = (
     <>
       <span className="font-medium">{name}</span>
       <BandBadge band={finding.band} />
+      {finding.band === "above" && (
+        <span className="text-xs text-muted">
+          {signalStrength(finding.probability, finding.threshold)} signal
+        </span>
+      )}
       {finding.sparse && (
         <span
           className="rounded-md bg-surface px-2 py-0.5 text-xs text-muted ring-1 ring-line"
-          title="Few examples of this finding in the training data, so this estimate is less reliable."
+          title="Few examples of this finding in the training data, so this result is less reliable."
         >
-          Low-confidence estimate
+          Less reliable
         </span>
       )}
     </>
@@ -129,6 +158,8 @@ function FindingRow({
       }`}
     >
       {hasHeatmap ? (
+        // Selecting a row shows its highlight on the film beside it; the
+        // eye (not a caret) says "shown here", not "opens somewhere else".
         <button
           type="button"
           onClick={onSelect}
@@ -137,30 +168,33 @@ function FindingRow({
         >
           {head}
           <span
-            className={`ml-auto flex items-center gap-1 text-xs font-medium ${selected ? "text-accent" : "text-muted"}`}
+            className={`ml-auto inline-flex items-center gap-1.5 rounded-full px-2.5 py-1 text-xs font-medium transition-colors duration-150 ${
+              selected ? "bg-accent-soft text-accent" : "text-muted"
+            }`}
           >
-            {selected ? "Heatmap shown" : "Show heatmap"}
-            <CaretRight aria-hidden size={13} weight="bold" />
+            <Eye aria-hidden size={15} weight={selected ? "fill" : "regular"} />
+            {selected ? "On film" : "View on film"}
           </span>
         </button>
       ) : (
-        <div className="flex flex-wrap items-center gap-2">{head}</div>
+        <div className="flex flex-wrap items-center gap-2">
+          {head}
+          {finding.band === "above" && (
+            <span
+              className="ml-auto text-xs text-muted"
+              title="Highlights are drawn for the five strongest findings."
+            >
+              No highlight
+            </span>
+          )}
+        </div>
       )}
-      <details className="group/score mt-1.5">
-        <summary className="inline-flex cursor-pointer list-none items-center gap-1 rounded text-xs text-muted hover:text-ink [&::-webkit-details-marker]:hidden">
-          <CaretRight aria-hidden size={11} weight="bold" className="transition-transform duration-150 group-open/score:rotate-90" />
-          Model score
-        </summary>
-        <p className="mt-1.5 text-sm tabular-nums">
-          Score <span className="font-mono">{finding.probability.toFixed(3)}</span>, flagging
-          threshold <span className="font-mono">{finding.threshold.toFixed(3)}</span>.
+      {note && (
+        <p className="mt-1.5 flex items-start gap-1.5 text-xs text-flag">
+          <Warning aria-hidden size={13} weight="fill" className="mt-px shrink-0" />
+          {note}
         </p>
-        <p className="mt-1 text-xs text-muted">
-          An uncalibrated model output, not the probability that disease is present. The
-          threshold was chosen on validation data.
-          {finding.sparse && " Few training examples of this finding: treat with extra caution."}
-        </p>
-      </details>
+      )}
     </li>
   );
 }
