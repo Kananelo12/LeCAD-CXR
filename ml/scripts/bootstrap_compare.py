@@ -48,8 +48,20 @@ def auc(y: np.ndarray, s: np.ndarray) -> float:
     return float((r[y == 1].sum() - n1 * (n1 + 1) / 2) / (n1 * n0))
 
 
-def per_class_auc(y: np.ndarray, p: np.ndarray) -> np.ndarray:
-    return np.array([auc(y[:, k], p[:, k]) for k in range(y.shape[1])])
+def spec_at_sens(y: np.ndarray, s: np.ndarray, target: float) -> float:
+    """Specificity at the strictest threshold that still flags at least
+    `target` of the true cases: how many healthy images are correctly left
+    alone when the model is set to miss at most 1 - target of the sick ones."""
+    pos = np.sort(s[y == 1])[::-1]
+    neg = s[y == 0]
+    if len(pos) == 0 or len(neg) == 0:
+        return float("nan")
+    threshold = pos[int(np.ceil(target * len(pos))) - 1]
+    return float(np.mean(neg < threshold))
+
+
+def per_class(y: np.ndarray, p: np.ndarray, metric) -> np.ndarray:
+    return np.array([metric(y[:, k], p[:, k]) for k in range(y.shape[1])])
 
 
 def ci(samples: np.ndarray) -> tuple[float, float]:
@@ -64,7 +76,19 @@ def main() -> None:
     ap.add_argument("--n", type=int, default=2000, help="bootstrap rounds")
     ap.add_argument("--seed", type=int, default=42)
     ap.add_argument("--view", choices=("PA", "AP"), help="restrict to one view position")
+    ap.add_argument("--spec-at-sens", type=float, metavar="S",
+                    help="compare specificity at sensitivity S (e.g. 0.90) instead of AUC")
     args = ap.parse_args()
+
+    if args.spec_at_sens:
+        target = args.spec_at_sens
+
+        def metric(y, s):
+            return spec_at_sens(y, s, target)
+
+        mname, mtag = f"Specificity at {target:.0%} sensitivity", f"_spec{round(target * 100)}"
+    else:
+        metric, mname, mtag = auc, "AUC", ""
 
     root = PATHS.artifacts / "runs"
     names = args.runs or sorted(
@@ -91,9 +115,9 @@ def main() -> None:
     groups = [np.flatnonzero(inverse == g) for g in range(inverse.max() + 1)]
     print(f"runs     : {len(names)}\nview     : {args.view or 'all'}\n"
           f"images   : {len(y):,}\npatients : {len(groups):,}\n"
-          f"rounds   : {args.n:,} (seed {args.seed})")
+          f"rounds   : {args.n:,} (seed {args.seed})\nmetric   : {mname}")
 
-    point = {n: per_class_auc(y, probs[n]) for n in names}
+    point = {n: per_class(y, probs[n], metric) for n in names}
     rng = np.random.default_rng(args.seed)
     boot = {n: np.empty((args.n, len(labels))) for n in names}
     t0 = time.time()
@@ -101,19 +125,20 @@ def main() -> None:
         idx = np.concatenate([groups[g] for g in rng.integers(0, len(groups), len(groups))])
         yb = y[idx]
         for n in names:
-            boot[n][b] = per_class_auc(yb, probs[n][idx])
+            boot[n][b] = per_class(yb, probs[n][idx], metric)
         if (b + 1) % 250 == 0:
             print(f"  {b + 1:>5}/{args.n}  ({time.time() - t0:.0f}s)", flush=True)
 
     macro_point = {n: float(np.nanmean(point[n])) for n in names}
     macro_boot = {n: np.nanmean(boot[n], axis=1) for n in names}
 
-    report = {"name": args.name, "view": args.view or "all", "rounds": args.n,
+    report = {"name": args.name, "metric": mname, "view": args.view or "all",
+              "rounds": args.n,
               "seed": args.seed,
               "images": len(y), "patients": len(groups), "models": {}, "differences": {}}
     width = max(len(n) for n in names) + 2
 
-    print(f"\nMacro AUC, 95% CI\n{'run':<{width}}{'AUC':>8}   95% CI")
+    print(f"\nMacro {mname}, 95% CI\n{'run':<{width}}{'value':>8}   95% CI")
     for n in sorted(names, key=lambda n: -macro_point[n]):
         lo, hi = ci(macro_boot[n])
         print(f"{n:<{width}}{macro_point[n]:>8.4f}   [{lo:.4f}, {hi:.4f}]")
@@ -124,7 +149,7 @@ def main() -> None:
         }
 
     if len(names) > 1:
-        print(f"\nDifferences in macro AUC (A - B)\n"
+        print(f"\nDifferences in macro {mname} (A - B)\n"
               f"{'A':<{width}}{'B':<{width}}{'diff':>8}   95% CI              A > B in")
         for a, b in itertools.combinations(sorted(names, key=lambda n: -macro_point[n]), 2):
             d = macro_boot[a] - macro_boot[b]
@@ -138,7 +163,8 @@ def main() -> None:
                 "share_above_zero": share,
             }
 
-    print(f"\nPer-class AUC, 95% CI\n{'label':<20}" + "".join(f"{n[:22]:>24}" for n in names))
+    print(f"\nPer-class {mname}, 95% CI\n{'label':<20}"
+          + "".join(f"{n[:22]:>24}" for n in names))
     for k, lab in enumerate(labels):
         cells = "".join(
             f"{point[n][k]:>8.3f} [{ci(boot[n][:, k])[0]:.2f},{ci(boot[n][:, k])[1]:.2f}]"
@@ -148,7 +174,7 @@ def main() -> None:
 
     out = PATHS.artifacts / "comparisons"
     out.mkdir(parents=True, exist_ok=True)
-    path = out / f"bootstrap_{args.name}{'_' + args.view if args.view else ''}.json"
+    path = out / f"bootstrap_{args.name}{'_' + args.view if args.view else ''}{mtag}.json"
     path.write_text(json.dumps(report, indent=2))
     print(f"\nWrote {path}")
 

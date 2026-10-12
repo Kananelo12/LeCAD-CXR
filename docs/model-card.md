@@ -5,8 +5,11 @@ end — it is examinable evidence of rigour and it feeds the Communication
 activity of the DSRM.*
 
 ## Model details
-- Architecture: _TBD (DenseNet-121 / ResNet-50 / EfficientNet-B0 compared)_
-- Version / commit: _TBD (final model)_. Candidate runs below.
+- Architecture: **DenseNet-121** (selected from DenseNet-121, ResNet-50 and
+  EfficientNet-B0; see *Model selection and operating point*)
+- Version: run `baseline-densenet121-20261010-201111` (code `6122a5c`),
+  deployed as `model_sens90.pt` (sha256 `00cd10b12611…`) with a 90%-sensitivity
+  operating point
 - Preprocessing: greyscale, resized to 256 × 256 (`prepare_image`, shared
   with the API), then 224 × 224 model input. Training reads a cache of the
   256 px images.
@@ -23,9 +26,15 @@ Paediatric imaging, lateral views, non-radiographic images, any use where
 a clinician does not review the output.
 
 ## Metrics
-Per-class and macro AUC-ROC (primary), sensitivity, specificity, precision,
-F1, PR-AUC. Reported per class — aggregates hide poor performance on rare
-but important findings.
+Per-class and macro AUC-ROC, sensitivity, specificity, precision, F1,
+PR-AUC. Reported per class, because aggregates hide poor performance on
+rare but important findings.
+
+**Sensitivity is the clinically primary metric**: a missed case is the
+costly error in decision support. Models are compared on specificity at a
+fixed 90% sensitivity, and the deployed thresholds target at least 90%
+sensitivity per finding. AUC-ROC remains the threshold-free summary of
+discrimination.
 
 ## Training runs
 
@@ -191,6 +200,27 @@ Per-finding intervals overlap throughout (full table in
 `ml/artifacts/comparisons/bootstrap_val-gpu.json`). Hernia's spans about
 0.84–1.00 overall, confirming the sparse-label caveat.
 
+**Specificity at 90% sensitivity.** In decision support a missed case is
+the costly error: a patient with disease is reassured. Sensitivity is
+therefore the clinically primary metric. Models are compared fairly on it by
+fixing sensitivity at 90% (each finding's threshold set to catch 9 in 10
+cases) and comparing how many healthy images are then correctly left
+unflagged. Same patient-level bootstrap:
+
+| Model | Macro specificity @ 90% sens. | 95% CI |
+|---|---:|---:|
+| DenseNet-121 | 0.546 | [0.505, 0.570] |
+| ResNet-50 | 0.538 | [0.477, 0.566] |
+| EfficientNet-B0 | 0.556 | [0.518, 0.573] |
+
+| Difference | Δ | 95% CI | A ahead in |
+|---|---:|---:|---:|
+| EfficientNet-B0 − DenseNet-121 | +0.009 | [-0.022, +0.038] | 65% |
+| EfficientNet-B0 − ResNet-50 | +0.018 | [-0.016, +0.066] | 77% |
+| DenseNet-121 − ResNet-50 | +0.009 | [-0.015, +0.034] | 73% |
+
+Equivalent again: every interval spans zero.
+
 **View-position check, all three models.** The table shows the overall AUC
 minus the better of the PA-only and AP-only AUCs. A positive value means
 mixing the views helps, a sign the model uses view position.
@@ -210,6 +240,60 @@ mixing the views helps, a sign the model uses view position.
 - **Infiltration** is negative in all three: the model does better within
   each view than across them.
 
+## Model selection and operating point (decided 2026-10-12)
+
+**Chosen model: DenseNet-121** (run 1, `baseline-densenet121-20261010-201111`).
+
+**Why.** The three architectures are statistically equivalent on every
+comparison made:
+- macro AUC, overall and on AP films
+- specificity at 90% sensitivity
+
+All 95% intervals for the differences span zero (see *Uncertainty*). With no
+evidence that an alternative is better, the **pre-specified baseline is
+kept**. Switching on a non-significant difference would be choosing on
+noise. DenseNet-121 is also the standard architecture in the chest X-ray
+literature (e.g. CheXNet), which aids comparison with published work. Its
+28 MB weights and sub-second CPU inference suit the API.
+
+**Operating point: at least 90% sensitivity per finding.** The thresholds
+saved by training (Youden's J) weigh a miss and a false alarm equally. At
+those, the model missed about 40% of Nodules and Infiltrations. The deployed
+model instead uses, for each finding, the highest threshold that still
+flags ≥ 90% of validation cases. It keeps the Youden threshold where that
+was already more sensitive (Cardiomegaly 0.93, Hernia 0.91). The accepted
+cost is more false alarms; every flag is reviewed by a clinician.
+
+Thresholds were chosen on **validation only**
+(`ml/scripts/set_operating_point.py`), before the test set is opened. The
+test evaluation measures how well this pre-chosen operating point holds.
+
+| | |
+|---|---|
+| Deployment file | `ml/artifacts/runs/baseline-densenet121-20261010-201111/model_sens90.pt` (sha256 `00cd10b12611…`) |
+| Weights | identical to run 1 `best.pt` |
+| Thresholds | `operating_point_sens90.json` alongside |
+
+| Finding | n pos | Youden: sens / spec | **Deployed: sens / spec** | Threshold |
+|---|---:|---:|---:|---:|
+| Atelectasis | 1,329 | 0.788 / 0.695 | **0.901** / 0.531 | 0.353 |
+| Cardiomegaly | 273 | 0.930 / 0.740 | **0.930** / 0.740 | 0.377 |
+| Effusion | 1,421 | 0.849 / 0.794 | **0.900** / 0.721 | 0.390 |
+| Infiltration | 2,156 | 0.596 / 0.687 | **0.901** / 0.311 | 0.321 |
+| Mass | 588 | 0.684 / 0.807 | **0.901** / 0.415 | 0.184 |
+| Nodule | 756 | 0.603 / 0.792 | **0.902** / 0.321 | 0.251 |
+| Pneumonia | 143 | 0.783 / 0.595 | **0.902** / 0.366 | 0.194 |
+| Pneumothorax | 417 | 0.791 / 0.760 | **0.902** / 0.529 | 0.115 |
+| Consolidation | 451 | 0.763 / 0.738 | **0.900** / 0.518 | 0.279 |
+| Edema | 209 | 0.900 / 0.759 | **0.904** / 0.732 | 0.275 |
+| Emphysema | 251 | 0.781 / 0.855 | **0.900** / 0.617 | 0.102 |
+| Fibrosis | 183 | 0.787 / 0.677 | **0.902** / 0.453 | 0.152 |
+| Pleural Thickening | 356 | 0.711 / 0.747 | **0.902** / 0.424 | 0.229 |
+| Hernia | 22 | 0.909 / 0.949 | **0.909** / 0.949 | 0.231 |
+
+(Validation figures; thresholds were fitted to these images, so these
+sensitivities hold by construction. The test set gives the honest figures.)
+
 ## Limitations
 - Labels are NLP-mined from reports, not image annotations.
 - "No Finding" ≠ normal.
@@ -223,6 +307,11 @@ mixing the views helps, a sign the model uses view position.
   transfer and local validation is required before any clinical use.
 - Test set prevalence is systematically higher than train_val, so
   threshold-dependent metrics shift between validation and test.
+- At the 90%-sensitivity operating point, specificity is low for some
+  findings: 0.31 for Infiltration and 0.32 for Nodule on validation. About
+  two in three healthy images get flagged for those findings. The output is
+  only usable as decision support reviewed by a clinician, never as a
+  diagnosis.
 - View position confounds labels: Edema is 11× and Consolidation 2.8×
   more prevalent on AP (often bedside) films than PA. The model may partly
   learn "AP film" rather than the finding. All three trained models show a

@@ -43,6 +43,9 @@ from train import predict
 def main() -> None:
     ap = argparse.ArgumentParser()
     ap.add_argument("--run", required=True, type=Path, help="run directory with best.pt")
+    ap.add_argument("--checkpoint", default="best.pt",
+                    help="file in the run directory, e.g. model_sens90.pt; "
+                         "its thresholds are the ones applied")
     ap.add_argument("--split", default="val", choices=("val", "test"))
     ap.add_argument("--batch-size", type=int, default=64)
     ap.add_argument("--num-workers", type=int, default=4)
@@ -50,7 +53,7 @@ def main() -> None:
     ap.add_argument("--name", help="output name (default: the split)")
     args = ap.parse_args()
 
-    ckpt = torch.load(args.run / "best.pt", map_location="cpu", weights_only=False)
+    ckpt = torch.load(args.run / args.checkpoint, map_location="cpu", weights_only=False)
     if tuple(ckpt["labels"]) != LABELS:
         raise ValueError("Checkpoint label order differs from lecad.labels.LABELS.")
 
@@ -62,7 +65,9 @@ def main() -> None:
     loader = build_loader(args.split, args.batch_size, args.num_workers, limit=args.limit)
     y, p = predict(model, loader, device, amp=device.type == "cuda")
     metrics = evaluate(y, p, thresholds=ckpt["thresholds"])
-    metrics.update(split=args.split, n_images=len(y), epoch=ckpt["epoch"])
+    metrics.update(split=args.split, n_images=len(y), epoch=ckpt["epoch"],
+                   checkpoint=args.checkpoint,
+                   operating_point=ckpt.get("operating_point", {"kind": "youden"}).get("kind"))
 
     # The loader does not shuffle eval splits, so row i of the frame is row i of y/p.
     frame = loader.dataset.frame
@@ -78,11 +83,11 @@ def main() -> None:
         if mask.any()
     }
 
-    name = args.name or args.split
-    out = args.run / f"eval_{name}.json"
+    out_name = args.name or args.split
+    out = args.run / f"eval_{out_name}.json"
     out.write_text(json.dumps(metrics, indent=2))
     np.savez_compressed(
-        args.run / f"preds_{name}.npz",
+        args.run / f"preds_{out_name}.npz",
         y=y.astype(np.uint8),
         p=p.astype(np.float32),
         image=frame["Image Index"].to_numpy().astype(str),
@@ -102,7 +107,7 @@ def main() -> None:
     print(f"\n{'subgroup':<20}{'images':>8}{'macro AUC':>11}")
     for name, g in metrics["subgroups"].items():
         print(f"{name:<20}{g['n_images']:>8}{g['macro_auc']:>11.4f}")
-    print(f"\nWrote {out} and preds_{name}.npz")
+    print(f"\nWrote {out} and preds_{out_name}.npz")
 
 
 if __name__ == "__main__":
