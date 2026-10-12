@@ -421,23 +421,34 @@ meaningless.
 The test set is locked in code. It opens only when `LECAD_ALLOW_TEST=1` is
 set **for that one command**. Never put it in `.env`.
 
-On the Lightning GPU machine (faster):
+The evaluation uses the **deployed** model file and its pre-chosen
+thresholds (`model_sens90.pt`, see the model card's *Model selection and
+operating point*). On the Lightning **T4** (C5), about 2 minutes:
 
 ```bash
-LECAD_ALLOW_TEST=1 python ml/scripts/evaluate.py --run ml/artifacts/runs/<final-run> --split test
+cd ~/LeCAD-CXR
+git pull
+python ml/scripts/set_operating_point.py --run ml/artifacts/runs/baseline-densenet121-20261010-201111 --preds val-gpu --sensitivity 0.90
 ```
 
-Or on the laptop (25,596 images on CPU, so expect a few hours):
+This rebuilds `model_sens90.pt` from the same validation predictions. Its
+**threshold column must match the table in the model card** exactly. If it
+doesn't, stop and ask. Then, once:
 
-```powershell
-$env:LECAD_ALLOW_TEST = "1"
-python ml\scripts\evaluate.py --run ml\artifacts\runs\<final-run> --split test --num-workers 4
-Remove-Item Env:LECAD_ALLOW_TEST
+```bash
+LECAD_ALLOW_TEST=1 python ml/scripts/evaluate.py --run ml/artifacts/runs/baseline-densenet121-20261010-201111 --checkpoint model_sens90.pt --split test
 ```
 
-This writes `eval_test.json` beside the model. Record it in the model card.
-Expect precision and F1 to differ from validation: the test set has more
-disease (see `ml/src/lecad/splits.py`). AUC is the comparable figure.
+Switch the machine back to CPU, then pack and download the results
+(`eval_test.json`, `preds_test.npz`) as in C8.
+
+Record `eval_test.json` in the model card. The key question is whether
+**sensitivity at the pre-chosen thresholds stays near 90% on test**. A
+large drop for a finding is itself a result: the operating point did not
+transfer, and it belongs in the limitations. Expect precision and F1 to
+differ from validation, because the test set has more disease (see
+`ml/src/lecad/splits.py`). AUC is the threshold-free comparison with
+validation and with published results.
 
 ---
 
