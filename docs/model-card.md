@@ -352,14 +352,23 @@ patient-level bootstrap (2,000 rounds, `bootstrap_compare.py --name test`).
    drifts on another, which is direct evidence for the local
    re-calibration requirement in *Limitations*.
 
-Under the DSRM, finding 3 is an objective not met: it is to be taken back to
-design and development (e.g. a Hernia threshold fitted with more positives,
-or Hernia reported only as a ranked score). This must not be fixed by tuning
-on the test set.
+Under the DSRM, finding 3 is an objective not met. **Decision (2026-10-12):
+Hernia is reported as a known limitation** rather than iterated on in this
+study. A sound fix needs more Hernia positives than validation offers (22);
+re-fitting the threshold on the test set would invalidate the evaluation.
+The finding stays in the model and the interface (its AUC of 0.906 shows
+the ranking is informative), and the API already marks it as a sparse
+label. A threshold for Hernia must not be relied on.
 
 ## Limitations
 - Labels are NLP-mined from reports, not image annotations.
 - "No Finding" ≠ normal.
+- **Known limitation: Hernia's flag is not reliable.** At the deployed
+  threshold it caught only 63% of test cases [95% CI 47–77%], against the
+  90% objective. Its threshold was fitted to 22 validation cases. The model
+  still ranks Hernia well (test AUC 0.906), so a high Hernia score remains
+  informative, but a missing Hernia flag must not be read as reassurance.
+  Fixing this needs more Hernia cases, for example local data.
 - Hernia (141 train_val images) and Pneumonia (876) are too sparse for
   reliable per-class estimates. Validation holds only about 22 Hernia and
   143 Pneumonia images. **Decision (2026-10-06, with supervisor): all 14
