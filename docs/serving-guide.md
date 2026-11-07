@@ -49,8 +49,25 @@ mkdir ml\artifacts
    The `-v lecad-pg-data:...` part keeps the data when the container
    stops. Next time, start it again with `docker start lecad-pg`.
 
-With PostgreSQL, the database itself refuses any change or deletion of
-audit rows. SQLite cannot do that; the hash chain still detects tampering.
+**Option C: Neon (the hosted deployment database, ADR 0004).** Nothing to
+install. The project is `LeCAD-CXR` in the Joel Projects organization,
+AWS Europe (Frankfurt).
+
+1. Open https://console.neon.tech/app/projects/sparkling-cherry-56827249/
+   and sign in with the account that belongs to Joel Projects.
+2. Click **Connect** (top right of the project dashboard).
+3. In the window that opens, turn **Connection pooling** *off*. The host
+   name must not contain `-pooler`.
+4. Copy the connection string. It starts with `postgresql://` and ends
+   with `?sslmode=require&channel_binding=require`.
+
+You will paste it into `.env` in step 3. Neon's free plan puts the
+database to sleep when nobody uses it, so the first request after a quiet
+spell takes a few seconds longer.
+
+With PostgreSQL (Options B and C), the database itself refuses any change or
+deletion of audit rows. SQLite cannot do that; the hash chain still detects
+tampering.
 
 ## 3. Fill in `.env`
 
@@ -66,6 +83,9 @@ Open `.env` in VS Code and find the `API` section at the bottom.
    - Option A (SQLite): change it to
      `DATABASE_URL=sqlite:///./ml/artifacts/lecad.db`
    - Option B (PostgreSQL): leave it as it is.
+   - Option C (Neon): paste the connection string after `DATABASE_URL=`,
+     then change its start from `postgresql://` to `postgresql+psycopg://`.
+     Keep the rest, including `?sslmode=require&channel_binding=require`.
 2. **JWT_SECRET.** Generate a random value:
 
    ```bash
@@ -181,7 +201,8 @@ pytest
 ```
 
 The PostgreSQL-only tests (append-only trigger, concurrent writes) are
-skipped unless you give them a **throwaway** database. They drop its tables.
+skipped unless you give them a **throwaway** database. They drop its tables,
+so never point them at the Neon database.
 
 ```bash
 docker run -d --rm --name lecad-pg-test -e POSTGRES_USER=lecad -e POSTGRES_PASSWORD=lecad -e POSTGRES_DB=lecad -p 55432:5432 postgres:16-alpine
@@ -214,6 +235,8 @@ The test expects the account to have no analyses yet, so use a fresh one.
 | `DATABASE_URL is not set.` | `.env` is missing, or you are not in the repository root. |
 | `unable to open database file` | SQLite: create `ml\artifacts` (step 2A) and run from the repository root. |
 | `connection refused` on port 5432 | PostgreSQL: `docker start lecad-pg`, with Docker Desktop running. |
+| `No module named 'psycopg2'` | Neon: the URL must start with `postgresql+psycopg://` (step 3.1, Option C). |
+| First request hangs a few seconds, then works | Neon was asleep after a quiet spell; that is normal. |
 | Sign-in "works" but you are sent back to the login page | `LECAD_COOKIE_SECURE=0` is missing while using plain `http://`. |
 | `Too many failed sign-in attempts` | 5 wrong passwords in 15 minutes. Wait, or restart the API. |
 | `address already in use` | Something already uses that port; stop it, or use `--port 8001` (and update `web/.env.local`). |
