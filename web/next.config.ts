@@ -13,6 +13,7 @@ const nextConfig: NextConfig = {
     // after /auth/me, and all data is fetched client-side from FastAPI.
     // Validate instant navigation only where a segment opts in.
     instantInsights: { validationLevel: "manual-warning" },
+    agentUpgrade: "security",
   },
   env: { NEXT_PUBLIC_API_MOCKING: mocking ? "enabled" : "" },
   // Same-origin proxy to FastAPI, so the session cookie needs no CORS (ADR 0001).
