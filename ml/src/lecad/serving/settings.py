@@ -17,6 +17,16 @@ except ImportError:
 
 _PLACEHOLDER_SECRETS = ("change-me", "changeme", "secret")
 
+# ml/src/lecad/serving/settings.py -> the repository root.
+REPO_ROOT = Path(__file__).resolve().parents[4]
+
+
+def resolve_model_path(value: str) -> Path:
+    """A relative LECAD_MODEL_PATH is relative to the repository root, not to
+    whatever folder the API happens to be started from."""
+    path = Path(value).expanduser()
+    return path if path.is_absolute() else REPO_ROOT / path
+
 
 @dataclass(frozen=True)
 class Settings:
@@ -54,7 +64,7 @@ class Settings:
         return cls(
             database_url=os.environ.get("DATABASE_URL", ""),
             jwt_secret=os.environ.get("JWT_SECRET", ""),
-            model_path=Path(model_path) if model_path else None,
+            model_path=resolve_model_path(model_path) if model_path else None,
             fake_model=os.getenv("LECAD_FAKE_MODEL") == "1",
             session_minutes=int(os.getenv("LECAD_SESSION_MINUTES", "30")),
             cookie_secure=os.getenv("LECAD_COOKIE_SECURE", "1") != "0",

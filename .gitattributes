@@ -1,2 +1,6 @@
 # Shell scripts run on Linux (Lightning AI); Windows line endings would break them.
 *.sh text eol=lf
+
+# Windows launchers: cmd.exe and PowerShell 5.1 expect CRLF.
+*.cmd text eol=crlf
+*.ps1 text eol=crlf

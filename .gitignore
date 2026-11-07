@@ -15,6 +15,10 @@ archive/
 *.safetensors
 ml/artifacts/
 ml/runs/
+# Except the one deployed model (28 MB), so a fresh clone can run the
+# system with no download. Every other checkpoint stays out of git.
+!ml/models/
+!ml/models/model_sens90.pt
 ml/.cache/
 wandb/
 
@@ -24,6 +28,9 @@ wandb/
 !.env.example
 *.pem
 *.key
+# Marking notes with the database connection string: submitted on
+# Blackboard, never pushed.
+MARKING-NOTES.md
 
 # ── Research data (interviews) — must never touch this repo ───────────────
 interviews/

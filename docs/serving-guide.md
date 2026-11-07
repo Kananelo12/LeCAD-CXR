@@ -178,16 +178,16 @@ recorded earlier can.
 
 The deployed model is DenseNet-121 at the 90%-sensitivity operating point
 (`docs/model-card.md`, *Model selection and operating point*):
-`ml/artifacts/runs/baseline-densenet121-20261010-201111/model_sens90.pt`.
-If it isn't on this laptop, collect it from the training machine (C8 in
-`docs/training-guide.md`), or rebuild it from `best.pt` and the validation
-predictions with `ml/scripts/set_operating_point.py`.
+`ml/models/model_sens90.pt`. It is committed to the repository, so every
+clone has it. It is a copy of
+`ml/artifacts/runs/baseline-densenet121-20261010-201111/model_sens90.pt`
+from the training run, which can be rebuilt from that run's `best.pt` and
+validation predictions with `ml/scripts/set_operating_point.py`.
 
 In `.env`:
 
-1. Set the **full path** (a relative path depends on the folder the API is
-   started from):
-   `LECAD_MODEL_PATH=D:/Work/LeCAD-CXR/ml/artifacts/runs/baseline-densenet121-20261010-201111/model_sens90.pt`
+1. Set `LECAD_MODEL_PATH=ml/models/model_sens90.pt`. A relative path is
+   read from the repository root, whichever folder the API is started from.
 2. Delete any `LECAD_FAKE_MODEL=1` line (only one of the two may be set).
 
 Restart the API (step 5). The model version becomes the architecture plus
