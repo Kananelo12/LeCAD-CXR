@@ -9,6 +9,7 @@ dependency aliases defined inside create_app from real annotations.
 """
 
 import hashlib
+import logging
 import uuid
 from collections.abc import Iterator
 from datetime import UTC, datetime
@@ -29,7 +30,8 @@ from fastapi import (
 from fastapi.exceptions import RequestValidationError
 from fastapi.responses import JSONResponse
 from pydantic import BaseModel
-from sqlalchemy import select
+from sqlalchemy import select, text
+from sqlalchemy.exc import OperationalError
 from sqlalchemy.orm import Session, sessionmaker
 
 from lecad.labels import LABELS, SPARSE_LABELS
@@ -65,6 +67,9 @@ FAKE_MODEL_WARNING = (
     "DEVELOPMENT BUILD WITH A FAKE MODEL: these results are random and mean nothing. "
 )
 BAD_CREDENTIALS = "Incorrect username or password."
+DATABASE_UNAVAILABLE = "The database is not reachable yet. Try again in a moment."
+
+log = logging.getLogger("lecad.serving")
 
 Band = Literal["above", "near", "below"]
 
@@ -175,6 +180,26 @@ def create_app(settings: Settings, predictor: Predictor | None = None) -> FastAP
         message = first.get("msg", "invalid value")
         return JSONResponse({"detail": f"Invalid request: {where} {message}".strip()},
                             status_code=422)
+
+    # The database could not be reached (still waking, or a network drop).
+    # Nothing was written, so the request is safe to repeat; 503 tells the
+    # frontend to wait and retry rather than report a crash.
+    @app.exception_handler(OperationalError)
+    async def _database_unavailable(request: Request, exc: OperationalError):
+        log.warning("database unavailable on %s %s: %s", request.method,
+                    request.url.path, str(exc.orig).splitlines()[0] if exc.orig else exc)
+        return JSONResponse({"detail": DATABASE_UNAVAILABLE}, status_code=503,
+                            headers={"Retry-After": "2"})
+
+    # ── Health ───────────────────────────────────────────────────────────
+
+    # Public and cheap. The sign-in page calls it as soon as it opens, so a
+    # suspended database starts waking while the user is still typing.
+    @app.get("/health")
+    def health():
+        with sessions() as session:
+            session.execute(text("SELECT 1"))
+        return {"status": "ok"}
 
     def db() -> Iterator[Session]:
         with sessions() as session:

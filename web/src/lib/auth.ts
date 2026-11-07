@@ -1,7 +1,8 @@
 "use client";
 
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { api } from "./api/client";
+import { api, isTemporarilyUnavailable } from "./api/client";
+import { retryDelay } from "./server-status";
 
 export const ME_KEY = ["auth", "me"] as const;
 
@@ -14,6 +15,11 @@ export function useLogin() {
   return useMutation({
     mutationFn: ({ username, password }: { username: string; password: string }) =>
       api.login(username, password),
+    // A sleeping database answers 503 for a moment; that is not a failed
+    // sign-in (the API does not count it against the throttle), so wait and
+    // send it again rather than make the user press the button twice.
+    retry: (count, error) => isTemporarilyUnavailable(error) && count < 4,
+    retryDelay,
     onSuccess: (data) => qc.setQueryData(ME_KEY, data),
   });
 }

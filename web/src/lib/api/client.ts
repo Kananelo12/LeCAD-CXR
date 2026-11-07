@@ -1,6 +1,7 @@
 import type { z } from "zod";
 import {
   ErrorBody,
+  Health,
   HistoryPage,
   ModelInfo,
   Prediction,
@@ -24,6 +25,16 @@ export class ApiError extends Error {
   }
 }
 
+// Status 0: the request never got an answer (network down, server stopped).
+export const NO_RESPONSE = 0;
+
+// Worth waiting for and repeating: the server is up but its database is
+// still waking (503), a proxy timed out, or there was no answer at all.
+// Never 4xx: those are answers, and repeating them changes nothing.
+export function isTemporarilyUnavailable(error: unknown): boolean {
+  return error instanceof ApiError && [NO_RESPONSE, 502, 503, 504].includes(error.status);
+}
+
 // Every response is validated against the contract, so drift fails here
 // instead of rendering something plausible and wrong.
 async function request<T extends z.ZodType>(
@@ -32,7 +43,12 @@ async function request<T extends z.ZodType>(
   init?: RequestInit,
 ): Promise<z.infer<T>> {
   await ready;
-  const res = await fetch(`/api${path}`, { credentials: "same-origin", ...init });
+  let res: Response;
+  try {
+    res = await fetch(`/api${path}`, { credentials: "same-origin", ...init });
+  } catch {
+    throw new ApiError(NO_RESPONSE, "Could not reach the server.");
+  }
 
   if (!res.ok) {
     const body = ErrorBody.safeParse(await res.json().catch(() => null));
@@ -55,6 +71,8 @@ const json = (body: unknown): RequestInit => ({
 });
 
 export const api = {
+  health: () => request("/health", Health),
+
   login: (username: string, password: string) =>
     request("/auth/login", UserResponse, json({ username, password })),
 

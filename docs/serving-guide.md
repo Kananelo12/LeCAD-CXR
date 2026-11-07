@@ -62,8 +62,14 @@ AWS Europe (Frankfurt).
    with `?sslmode=require&channel_binding=require`.
 
 You will paste it into `.env` in step 3. Neon's free plan puts the
-database to sleep when nobody uses it, so the first request after a quiet
-spell takes a few seconds longer.
+database to sleep after about 5 idle minutes. The app is built for this:
+the sign-in page starts waking the database as soon as it opens and says
+*Waking the database* if that takes more than a moment, and a sign-in
+pressed meanwhile waits and retries on its own. The first request after a
+quiet spell takes a second or two longer; nothing fails.
+
+Before a demonstration, open the sign-in page a minute early: by the time
+anyone types, the database is awake.
 
 With PostgreSQL (Options B and C), the database itself refuses any change or
 deletion of audit rows. SQLite cannot do that; the hash chain still detects
@@ -237,6 +243,7 @@ The test expects the account to have no analyses yet, so use a fresh one.
 | `connection refused` on port 5432 | PostgreSQL: `docker start lecad-pg`, with Docker Desktop running. |
 | `No module named 'psycopg2'` | Neon: the URL must start with `postgresql+psycopg://` (step 3.1, Option C). |
 | First request hangs a few seconds, then works | Neon was asleep after a quiet spell; that is normal. |
+| *The server is not responding yet* on the sign-in page | The API is not running (step 5), or the laptop is offline. Start it, then click **Check again**. |
 | Sign-in "works" but you are sent back to the login page | `LECAD_COOKIE_SECURE=0` is missing while using plain `http://`. |
 | `Too many failed sign-in attempts` | 5 wrong passwords in 15 minutes. Wait, or restart the API. |
 | `address already in use` | Something already uses that port; stop it, or use `--port 8001` (and update `web/.env.local`). |

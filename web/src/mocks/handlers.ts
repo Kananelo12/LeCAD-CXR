@@ -52,6 +52,8 @@ const unauthorized = () =>
 const latency = (ms: number) => delay(process.env.NODE_ENV === "test" ? 0 : ms);
 
 export const handlers = [
+  http.get("/api/health", () => HttpResponse.json({ status: "ok" })),
+
   http.post("/api/auth/login", async ({ request }) => {
     await latency(400);
     const body = (await request.json().catch(() => null)) as {

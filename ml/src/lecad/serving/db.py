@@ -115,6 +115,14 @@ def make_engine(database_url: str) -> Engine:
     if database_url.startswith("sqlite"):
         # FastAPI runs sync endpoints on a thread pool.
         kwargs["connect_args"] = {"check_same_thread": False}
+    else:
+        # A hosted database (Neon, ADR 0004) closes connections when it
+        # suspends after a few idle minutes. Without a check, the pool hands
+        # the next request a dead connection and it fails with a 500. The
+        # ping costs one round trip per checkout and opens a fresh
+        # connection (waking the database) when the old one is gone.
+        kwargs["pool_pre_ping"] = True
+        kwargs["pool_recycle"] = 240  # seconds; under Neon's 5-minute suspend
     return create_engine(database_url, **kwargs)
 
 

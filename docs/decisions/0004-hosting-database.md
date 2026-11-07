@@ -33,8 +33,14 @@ pooler surprises for a service with a handful of workers.
 
 ## Consequences
 
-- The free plan suspends an idle database; the first request after a quiet
-  period is slower while it wakes.
+- The free plan suspends an idle database after about 5 minutes and closes
+  its connections. The API therefore checks each pooled connection before
+  use (`pool_pre_ping`, recycled after 240 s); without that, the first
+  request after a quiet spell failed with a 500. An unreachable database
+  is a 503 with `Retry-After`, never a crash. The sign-in page calls
+  `GET /health` on opening to wake the database early, shows *Waking the
+  database* when that takes more than a moment, and retries sign-in on
+  503 by itself.
 - Accounts are still created only with `python -m lecad.serving.admin`
   (ADR 0002). It now writes to Neon whenever `.env` points there.
 - Local Docker PostgreSQL and SQLite remain fine for development and the

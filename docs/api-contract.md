@@ -29,6 +29,15 @@ Change this file, the schemas and the FastAPI models together, in one commit.
 | 415 | Upload is not PNG or JPEG. |
 | 422 | Request is malformed, or `scope_confirmed` was not `true`. |
 | 429 | Too many failed sign-ins for this username (5 in 15 minutes). |
+| 503 | The database cannot be reached yet (the hosted database wakes after idle minutes, ADR 0004). Sent with `Retry-After: 2`. Nothing was written; the frontend waits and repeats the request. Not counted as a failed sign-in. |
+
+## Health
+
+### `GET /health`
+
+Public. Runs one trivial query, so it also wakes a sleeping database.
+`{"status": "ok"}`, or **503** as above. The sign-in page calls it as soon
+as it opens, so the database is awake by the time the user presses Sign in.
 
 ## Authentication
 

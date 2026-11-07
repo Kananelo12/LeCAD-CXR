@@ -7,8 +7,9 @@ import {
   QueryClientProvider,
 } from "@tanstack/react-query";
 import type { ReactNode } from "react";
-import { ApiError, holdRequestsUntil } from "@/lib/api/client";
+import { ApiError, holdRequestsUntil, isTemporarilyUnavailable } from "@/lib/api/client";
 import { ME_KEY } from "@/lib/auth";
+import { retryDelay } from "@/lib/server-status";
 
 const MOCKING = process.env.NEXT_PUBLIC_API_MOCKING === "enabled";
 
@@ -37,7 +38,13 @@ function makeQueryClient() {
     mutationCache: new MutationCache({ onError: (error) => onError(error) }),
     defaultOptions: {
       queries: {
-        retry: (count, error) => !(error instanceof ApiError && error.status < 500) && count < 2,
+        // A database waking from sleep gets more patience (about 15 s) than
+        // a genuine server error; an answer such as 401 or 404 gets none.
+        retry: (count, error) =>
+          isTemporarilyUnavailable(error)
+            ? count < 5
+            : !(error instanceof ApiError && error.status < 500) && count < 2,
+        retryDelay,
         refetchOnWindowFocus: false,
       },
     },

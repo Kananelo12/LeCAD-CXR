@@ -40,6 +40,8 @@ export type User = z.infer<typeof User>;
 
 export const UserResponse = z.object({ user: User });
 
+export const Health = z.object({ status: z.literal("ok") });
+
 export const Finding = z.object({
   label: Label,
   probability: z.number().min(0).max(1),
