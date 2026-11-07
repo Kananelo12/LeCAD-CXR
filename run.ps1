@@ -118,11 +118,11 @@ $EnvFile = Join-Path $Root ".env"
 if (-not (Test-Path $EnvFile)) {
     Write-Host ""
     Write-Host "      This laptop has no .env file yet. Paste the database connection string" -ForegroundColor Yellow
-    Write-Host "      from the marking notes (it starts with postgresql://) and press Enter." -ForegroundColor Yellow
+    Write-Host "      from the supervisor guide (it starts with postgresql://) and press Enter." -ForegroundColor Yellow
     $url = (Read-Host "      DATABASE_URL").Trim().Trim('"').Trim("'")
     if ($url -notmatch '^postgres(ql)?(\+psycopg)?://\S+@\S+') {
         Fail "That does not look like a database connection string." `
-             "Copy the whole line starting with postgresql:// from the marking notes, then run .\run.cmd again."
+             "Copy the whole line starting with postgresql:// from the supervisor guide, then run .\run.cmd again."
     }
     # SQLAlchemy needs the driver named; Neon hands out plain postgresql://.
     $url = $url -replace '^postgres(ql)?(\+psycopg)?://', 'postgresql+psycopg://'
@@ -260,7 +260,7 @@ try {
         if ($api.HasExited) {
             Show-LogTail $apiLog
             Fail "The API stopped while starting (details above)." `
-                 "If it mentions DATABASE_URL or the database, check the connection string in .env against the marking notes."
+                 "If it mentions DATABASE_URL or the database, check the connection string in .env against the supervisor guide."
         }
         if ((Get-Date) -gt $deadline) {
             Show-LogTail $apiLog
@@ -288,7 +288,8 @@ try {
     Start-Process "http://localhost:$WebPort"
     Write-Host ""
     Write-Host "  LeCAD-CXR is running at http://localhost:$WebPort" -ForegroundColor Green
-    Write-Host "  Sign in with the account in the marking notes."
+    Write-Host "  Sign in with the account in the supervisor guide."
+    Write-Host "  Test X-rays are in the sample-images folder (see its README.md)."
     Write-Host "  Keep this window open. Press Ctrl+C here to stop." -ForegroundColor Yellow
     Write-Host "  Logs: $Logs"
     Write-Host ""

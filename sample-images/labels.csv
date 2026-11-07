@@ -1,0 +1,76 @@
+folder,file,true_label,age,sex,radiologist_box_xywh,model_flags_true_label,rank_among_flags,n_flagged,review_suggested
+Atelectasis,00001673_016.png,Atelectasis,35,F,282 548 51 101,yes,9,11,Pneumothorax; Pleural_Thickening; Fibrosis; Mass; Effusion; Nodule; Pneumonia; Infiltration; Atelectasis; Emphysema; Consolidation
+Atelectasis,00025270_000.png,Atelectasis,61,F,269 521 100 67,weaker,,6,Fibrosis; Pleural_Thickening; Cardiomegaly; Nodule; Pneumonia; Infiltration
+Atelectasis,00012299_002.png,Atelectasis,22,M,196 576 659 80,yes,7,11,Pneumothorax; Fibrosis; Emphysema; Mass; Pleural_Thickening; Nodule; Atelectasis; Pneumonia; Effusion; Consolidation; Infiltration
+Atelectasis,00000147_001.png,Atelectasis,66,F,618 599 101 180,yes,5,12,Fibrosis; Pneumothorax; Pneumonia; Pleural_Thickening; Atelectasis; Hernia; Effusion; Emphysema; Nodule; Mass; Infiltration; Consolidation
+Atelectasis,00020810_003.png,Atelectasis,66,M,159 715 259 114,yes,7,9,Mass; Nodule; Fibrosis; Emphysema; Pleural_Thickening; Pneumonia; Atelectasis; Consolidation; Infiltration
+Cardiomegaly,00020986_000.png,Cardiomegaly,23,M,418 382 441 292,yes,2,7,Fibrosis; Cardiomegaly; Effusion; Pneumonia; Pleural_Thickening; Infiltration; Nodule
+Cardiomegaly,00015400_001.png,Cardiomegaly,36,M,299 351 479 410,yes,3,9,Fibrosis; Pneumonia; Cardiomegaly; Edema; Pleural_Thickening; Effusion; Consolidation; Infiltration; Nodule
+Cardiomegaly,00014574_000.png,Cardiomegaly,74,M,370 365 438 396,yes,4,9,Fibrosis; Pleural_Thickening; Emphysema; Cardiomegaly; Hernia; Nodule; Mass; Infiltration; Pneumonia
+Cardiomegaly,00016606_000.png,Cardiomegaly,62,M,367 425 488 379,yes,4,10,Fibrosis; Pleural_Thickening; Pneumonia; Cardiomegaly; Infiltration; Consolidation; Atelectasis; Pneumothorax; Nodule; Mass
+Cardiomegaly,00027797_000.png,Cardiomegaly,54,M,430 408 495 322,yes,1,3,Cardiomegaly; Mass; Nodule
+Effusion,00023058_004.png,Effusion,53,M,38 562 317 203,yes,4,10,Fibrosis; Pneumothorax; Pleural_Thickening; Effusion; Atelectasis; Nodule; Mass; Emphysema; Infiltration; Pneumonia
+Effusion,00016291_002.png,Effusion,53,M,617 676 327 79,yes,5,12,Edema; Pleural_Thickening; Mass; Consolidation; Effusion; Pneumonia; Infiltration; Pneumothorax; Nodule; Atelectasis; Cardiomegaly; Fibrosis
+Effusion,00030634_000.png,Effusion,60,F,142 611 317 97,yes,4,9,Pneumothorax; Pleural_Thickening; Fibrosis; Effusion; Atelectasis; Nodule; Pneumonia; Mass; Infiltration
+Effusion,00029894_000.png,Effusion,56,F,715 508 230 218,yes,3,12,Pneumothorax; Mass; Effusion; Pleural_Thickening; Consolidation; Atelectasis; Edema; Pneumonia; Nodule; Infiltration; Emphysema; Fibrosis
+Effusion,00001437_012.png,Effusion,30,F,83 139 353 617,yes,4,10,Pneumothorax; Mass; Pleural_Thickening; Effusion; Consolidation; Emphysema; Nodule; Atelectasis; Infiltration; Pneumonia
+Infiltration,00021710_003.png,Infiltration,59,M,598 634 207 182,yes,9,10,Mass; Pneumonia; Nodule; Pleural_Thickening; Effusion; Atelectasis; Fibrosis; Edema; Infiltration; Consolidation
+Infiltration,00000468_041.png,Infiltration,31,M,267 454 113 73,yes,4,6,Nodule; Cardiomegaly; Pleural_Thickening; Infiltration; Pneumonia; Fibrosis
+Infiltration,00011124_000.png,Infiltration,66,M,242 482 115 127,yes,7,7,Fibrosis; Mass; Pleural_Thickening; Consolidation; Nodule; Emphysema; Infiltration
+Infiltration,00014251_029.png,Infiltration,71,M,131 214 752 550,yes,7,12,Pneumonia; Pleural_Thickening; Fibrosis; Mass; Consolidation; Pneumothorax; Infiltration; Edema; Nodule; Effusion; Cardiomegaly; Atelectasis
+Infiltration,00017981_014.png,Infiltration,43,F,255 312 195 140,yes,4,4,Nodule; Pneumonia; Pneumothorax; Infiltration
+Mass,00011157_001.png,Mass,24,M,202 492 126 120,yes,1,8,Mass; Nodule; Pneumothorax; Consolidation; Emphysema; Fibrosis; Pleural_Thickening; Infiltration
+Mass,00020065_008.png,Mass,64,M,819 317 88 141,yes,4,10,Fibrosis; Emphysema; Pleural_Thickening; Mass; Nodule; Pneumonia; Infiltration; Hernia; Atelectasis; Consolidation
+Mass,00026261_001.png,Mass,46,M,196 281 238 239,yes,1,9,Mass; Pneumothorax; Pleural_Thickening; Nodule; Consolidation; Atelectasis; Fibrosis; Infiltration; Effusion
+Mass,00022192_003.png,Mass,73,M,176 221 262 303,yes,1,11,Mass; Fibrosis; Pleural_Thickening; Consolidation; Nodule; Pneumothorax; Pneumonia; Infiltration; Atelectasis; Emphysema; Edema
+Mass,00028698_001.png,Mass,46,M,850 404 61 170,yes,2,10,Emphysema; Mass; Nodule; Pneumothorax; Pneumonia; Pleural_Thickening; Fibrosis; Consolidation; Infiltration; Atelectasis
+Nodule,00020774_000.png,Nodule,59,M,230 478 61 63,yes,2,4,Emphysema; Nodule; Mass; Pleural_Thickening
+Nodule,00012592_005.png,Nodule,64,M,772 528 87 66,yes,10,11,Consolidation; Effusion; Atelectasis; Pneumothorax; Infiltration; Mass; Pneumonia; Edema; Pleural_Thickening; Nodule; Cardiomegaly
+Nodule,00013673_001.png,Nodule,46,M,151 436 81 70,yes,2,7,Mass; Nodule; Emphysema; Pneumothorax; Consolidation; Atelectasis; Pleural_Thickening
+Nodule,00018366_000.png,Nodule,64,F,191 608 64 69,yes,2,8,Emphysema; Nodule; Mass; Fibrosis; Pleural_Thickening; Pneumothorax; Consolidation; Infiltration
+Nodule,00012374_000.png,Nodule,34,M,656 257 82 80,yes,2,6,Mass; Nodule; Fibrosis; Pleural_Thickening; Consolidation; Pneumothorax
+Pneumonia,00005567_025.png,Pneumonia,53,M,609 562 148 191,yes,4,11,Fibrosis; Pleural_Thickening; Pneumothorax; Pneumonia; Nodule; Consolidation; Atelectasis; Emphysema; Infiltration; Effusion; Mass
+Pneumonia,00007444_003.png,Pneumonia,39,M,626 418 230 242,yes,3,9,Mass; Pneumothorax; Pneumonia; Pleural_Thickening; Fibrosis; Consolidation; Atelectasis; Nodule; Infiltration
+Pneumonia,00014294_011.png,Pneumonia,37,M,700 528 179 163,yes,1,9,Pneumonia; Fibrosis; Mass; Pneumothorax; Nodule; Atelectasis; Consolidation; Infiltration; Pleural_Thickening
+Pneumonia,00020845_002.png,Pneumonia,51,F,173 532 219 182,yes,6,10,Emphysema; Cardiomegaly; Pneumothorax; Atelectasis; Effusion; Pneumonia; Infiltration; Edema; Nodule; Mass
+Pneumonia,00013272_005.png,Pneumonia,51,M,611 532 220 308,weaker,,6,Nodule; Mass; Fibrosis; Pleural_Thickening; Emphysema; Consolidation
+Pneumothorax,00011355_011.png,Pneumothorax,35,M,501 52 428 454,yes,1,11,Pneumothorax; Emphysema; Fibrosis; Pleural_Thickening; Mass; Nodule; Effusion; Atelectasis; Infiltration; Pneumonia; Consolidation
+Pneumothorax,00029075_013.png,Pneumothorax,24,F,657 134 250 230,yes,1,10,Pneumothorax; Emphysema; Pleural_Thickening; Mass; Effusion; Nodule; Fibrosis; Atelectasis; Infiltration; Consolidation
+Pneumothorax,00021782_028.png,Pneumothorax,31,F,133 100 222 442,yes,1,11,Pneumothorax; Fibrosis; Pleural_Thickening; Emphysema; Mass; Pneumonia; Consolidation; Effusion; Infiltration; Nodule; Atelectasis
+Pneumothorax,00014083_023.png,Pneumothorax,26,F,640 610 278 133,yes,2,10,Emphysema; Pneumothorax; Fibrosis; Pleural_Thickening; Mass; Nodule; Atelectasis; Pneumonia; Infiltration; Consolidation
+Pneumothorax,00028861_009.png,Pneumothorax,24,F,582 48 291 300,yes,1,9,Pneumothorax; Fibrosis; Pleural_Thickening; Emphysema; Effusion; Mass; Nodule; Atelectasis; Infiltration
+Consolidation,00027291_002.png,Consolidation,52,M,,yes,7,10,Fibrosis; Pneumothorax; Mass; Pleural_Thickening; Emphysema; Nodule; Consolidation; Effusion; Infiltration; Pneumonia
+Consolidation,00023240_000.png,Consolidation,25,F,,weaker,,3,Pneumothorax; Cardiomegaly; Infiltration
+Consolidation,00012576_014.png,Consolidation,59,M,,yes,2,10,Mass; Consolidation; Pleural_Thickening; Effusion; Pneumothorax; Fibrosis; Atelectasis; Nodule; Pneumonia; Infiltration
+Consolidation,00005695_001.png,Consolidation,20,F,,yes,3,7,Mass; Pneumonia; Consolidation; Effusion; Atelectasis; Pneumothorax; Infiltration
+Consolidation,00015676_009.png,Consolidation,20,M,,yes,5,9,Fibrosis; Mass; Pleural_Thickening; Pneumothorax; Consolidation; Nodule; Emphysema; Infiltration; Pneumonia
+Edema,00027782_002.png,Edema,55,F,,yes,4,13,Pneumothorax; Pneumonia; Emphysema; Edema; Infiltration; Atelectasis; Consolidation; Mass; Cardiomegaly; Effusion; Nodule; Pleural_Thickening; Fibrosis
+Edema,00011986_001.png,Edema,68,F,,no,,7,Emphysema; Fibrosis; Pleural_Thickening; Pneumothorax; Pneumonia; Infiltration; Nodule
+Edema,00015561_003.png,Edema,55,F,,yes,2,9,Pneumonia; Edema; Nodule; Infiltration; Consolidation; Pneumothorax; Mass; Effusion; Emphysema
+Edema,00006991_013.png,Edema,52,M,,yes,5,12,Fibrosis; Pneumothorax; Pneumonia; Nodule; Edema; Mass; Consolidation; Pleural_Thickening; Infiltration; Cardiomegaly; Emphysema; Effusion
+Edema,00014203_025.png,Edema,31,M,,yes,2,9,Pneumonia; Edema; Consolidation; Nodule; Fibrosis; Infiltration; Cardiomegaly; Pleural_Thickening; Effusion
+Emphysema,00023075_020.png,Emphysema,30,M,,yes,1,8,Emphysema; Pneumothorax; Mass; Pleural_Thickening; Fibrosis; Nodule; Consolidation; Infiltration
+Emphysema,00008841_017.png,Emphysema,48,F,,yes,1,10,Emphysema; Pneumothorax; Mass; Pleural_Thickening; Consolidation; Effusion; Nodule; Infiltration; Atelectasis; Pneumonia
+Emphysema,00005476_002.png,Emphysema,58,F,,yes,1,6,Emphysema; Fibrosis; Pleural_Thickening; Atelectasis; Nodule; Pneumonia
+Emphysema,00018249_016.png,Emphysema,36,M,,yes,3,10,Pneumothorax; Fibrosis; Emphysema; Mass; Pleural_Thickening; Nodule; Consolidation; Infiltration; Effusion; Pneumonia
+Emphysema,00014083_024.png,Emphysema,26,F,,yes,2,10,Pneumothorax; Emphysema; Fibrosis; Pleural_Thickening; Mass; Nodule; Effusion; Atelectasis; Consolidation; Infiltration
+Fibrosis,00016434_006.png,Fibrosis,61,M,,yes,1,5,Fibrosis; Emphysema; Pleural_Thickening; Infiltration; Nodule
+Fibrosis,00014337_000.png,Fibrosis,47,M,,yes,1,9,Fibrosis; Pneumothorax; Pneumonia; Nodule; Edema; Consolidation; Mass; Pleural_Thickening; Infiltration
+Fibrosis,00000092_003.png,Fibrosis,58,F,,yes,2,12,Pneumothorax; Fibrosis; Pleural_Thickening; Pneumonia; Consolidation; Mass; Effusion; Infiltration; Nodule; Cardiomegaly; Edema; Atelectasis
+Fibrosis,00012622_034.png,Fibrosis,33,F,,yes,2,6,Pneumothorax; Fibrosis; Nodule; Pleural_Thickening; Pneumonia; Infiltration
+Fibrosis,00003460_000.png,Fibrosis,47,M,,yes,3,12,Emphysema; Pneumothorax; Fibrosis; Pleural_Thickening; Nodule; Effusion; Cardiomegaly; Atelectasis; Infiltration; Pneumonia; Consolidation; Edema
+Pleural_Thickening,00005089_009.png,Pleural_Thickening,34,F,,yes,2,11,Pneumothorax; Pleural_Thickening; Fibrosis; Mass; Consolidation; Nodule; Effusion; Emphysema; Atelectasis; Pneumonia; Infiltration
+Pleural_Thickening,00015171_016.png,Pleural_Thickening,65,M,,yes,2,11,Fibrosis; Pleural_Thickening; Mass; Emphysema; Pneumothorax; Effusion; Nodule; Consolidation; Pneumonia; Infiltration; Atelectasis
+Pleural_Thickening,00023097_006.png,Pleural_Thickening,37,M,,yes,2,9,Mass; Pleural_Thickening; Pneumothorax; Consolidation; Effusion; Atelectasis; Nodule; Fibrosis; Infiltration
+Pleural_Thickening,00014447_000.png,Pleural_Thickening,29,M,,weaker,,6,Mass; Pneumonia; Nodule; Infiltration; Consolidation; Pneumothorax
+Pleural_Thickening,00007129_000.png,Pleural_Thickening,71,F,,yes,3,10,Emphysema; Fibrosis; Pleural_Thickening; Nodule; Mass; Pneumothorax; Consolidation; Atelectasis; Infiltration; Pneumonia
+Hernia,00003938_001.png,Hernia,42,M,,yes,1,8,Hernia; Emphysema; Pneumonia; Fibrosis; Atelectasis; Mass; Nodule; Pleural_Thickening
+Hernia,00021463_010.png,Hernia,61,F,,yes,2,10,Fibrosis; Hernia; Emphysema; Mass; Pleural_Thickening; Pneumonia; Nodule; Atelectasis; Infiltration; Consolidation
+Hernia,00008508_003.png,Hernia,65,M,,no,,8,Fibrosis; Nodule; Atelectasis; Pneumonia; Mass; Pleural_Thickening; Consolidation; Infiltration
+Hernia,00000003_001.png,Hernia,74,F,,yes,4,9,Emphysema; Fibrosis; Pneumonia; Hernia; Mass; Pleural_Thickening; Atelectasis; Nodule; Infiltration
+Hernia,00020405_024.png,Hernia,49,M,,no,,11,Pneumothorax; Mass; Pleural_Thickening; Emphysema; Fibrosis; Nodule; Consolidation; Effusion; Pneumonia; Infiltration; Atelectasis
+No_Finding,00014125_005.png,No Finding,25,M,,n/a,,7,Nodule; Pneumonia; Infiltration; Atelectasis; Consolidation; Fibrosis; Mass
+No_Finding,00004822_044.png,No Finding,29,M,,n/a,,8,Fibrosis; Pleural_Thickening; Cardiomegaly; Pneumothorax; Mass; Pneumonia; Nodule; Atelectasis
+No_Finding,00009237_015.png,No Finding,49,F,,n/a,,10,Emphysema; Pneumothorax; Mass; Fibrosis; Pleural_Thickening; Nodule; Consolidation; Atelectasis; Effusion; Infiltration
+No_Finding,00002066_001.png,No Finding,74,M,,n/a,,12,Pneumothorax; Emphysema; Mass; Pleural_Thickening; Effusion; Atelectasis; Fibrosis; Nodule; Consolidation; Infiltration; Pneumonia; Edema
+No_Finding,00012021_002.png,No Finding,24,M,,n/a,,10,Fibrosis; Mass; Pneumonia; Cardiomegaly; Pleural_Thickening; Consolidation; Pneumothorax; Atelectasis; Infiltration; Edema

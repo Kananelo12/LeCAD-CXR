@@ -24,7 +24,7 @@ FastAPI service, and the web app clinicians use. The database is hosted
 | Windows 10 or 11 | | For macOS or Linux, use [the manual steps](#manual-steps-macos-linux-or-if-the-script-fails) |
 | Python 3.10 or newer | `python --version` | [python.org/downloads](https://www.python.org/downloads/). On the first screen tick **Add python.exe to PATH** |
 | Node.js 20.9 or newer | `node --version` | [nodejs.org](https://nodejs.org), the LTS version |
-| The **database connection string** | | In the marking notes submitted with this project. It is not in this repository because it contains a password |
+| The **database connection string** | | In the supervisor guide submitted with this project. It is not in this repository because it contains a password |
 | An internet connection | | |
 
 After installing Python or Node.js, close and reopen VS Code so its terminal
@@ -45,11 +45,16 @@ can find them.
    .\run.cmd
    ```
 5. **On the first run it asks for `DATABASE_URL`.** Paste the connection
-   string from the marking notes (right-click pastes in the terminal) and
+   string from the supervisor guide (right-click pastes in the terminal) and
    press Enter. It then installs everything, which takes about 10 minutes.
 6. **Sign in.** The browser opens at http://localhost:3000 by itself. Sign
-   in with the account in the marking notes. If the page says *Waking the
+   in with the account in the supervisor guide. If the page says *Waking the
    database…*, wait a few seconds; it continues on its own.
+7. **Try it.** On the Analyse page, drop in an image from
+   [`sample-images/`](sample-images/), which has five labelled test-set
+   X-rays per finding. Compare the result with
+   [`sample-images/labels.csv`](sample-images/labels.csv); the folder's
+   README says what to expect.
 
 **To stop**, press `Ctrl+C` in the terminal. **Next time**, open the folder
 and run `.\run.cmd` again.
@@ -80,7 +85,7 @@ bypassed for this one script only (`run.cmd` calls `run.ps1`), not changed.
 Run these from the `LeCAD-CXR` folder.
 
 **1. Create `.env`** in that folder, with these lines. Use the connection
-string from the marking notes, changing its start from `postgresql://` to
+string from the supervisor guide, changing its start from `postgresql://` to
 `postgresql+psycopg://`. Generate the secret with
 `python -c "import secrets; print(secrets.token_urlsafe(48))"`.
 
@@ -145,11 +150,15 @@ LeCAD-CXR/
 │   ├── configs/            experiment configs
 │   ├── splits/             generated split — COMMITTED, part of the record
 │   └── notebooks/          EDA and result plots only
+├── ml/models/             the deployed model (model_sens90.pt), 28 MB
 ├── web/                    Next.js frontend
-└── docs/                   model card, API contract, decision records
+├── docs/                   model card, API contract, decision records
+├── sample-images/          75 labelled test-set X-rays for trying the system
+└── run.cmd, run.ps1        one-command start (see Run it)
 ```
 
-**The dataset is not in this repository and never will be.** It lives at
+**The dataset is not in this repository and never will be**, apart from
+the 75 images in `sample-images/`. It lives at
 `D:\Work\archive` on this laptop and at `/kaggle/input/data` on Kaggle,
 and is found through `LECAD_DATA_ROOT`.
 
@@ -210,6 +219,9 @@ command, once, for the final model. Never set it in `.env`.
 1. **The test set is closed.** `test_list.txt` is the NIH's own split. No
    EDA on it, no tuning against it, no peeking. It is opened once, for the
    final evaluation.
+   The one exception is `sample-images/`: 75 of its images, chosen by
+   fixed rules (not by model output) after the final evaluation, so the
+   system can be tried on films it never trained on.
 2. **Validation is split by patient, never by image.** Patients average
    three radiographs; an image-level split puts the same person on both
    sides and inflates the score.

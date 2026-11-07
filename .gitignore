@@ -6,6 +6,8 @@ archive/
 *.jpeg
 *.tar.gz
 !docs/**/*.png
+# Except 75 test-set X-rays for trying the system (sample-images/README.md).
+!sample-images/*/*.png
 
 # ── Model weights & artefacts ─────────────────────────────────────────────
 *.pt
@@ -28,8 +30,9 @@ wandb/
 !.env.example
 *.pem
 *.key
-# Marking notes with the database connection string: submitted on
-# Blackboard, never pushed.
+# Supervisor guide with the database connection string and sign-in:
+# submitted on Blackboard, never pushed.
+SUPERVISOR-GUIDE.md
 MARKING-NOTES.md
 
 # ── Research data (interviews) — must never touch this repo ───────────────
