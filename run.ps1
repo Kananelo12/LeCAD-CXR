@@ -250,8 +250,16 @@ try {
         Info "installing packages"
         & npm.cmd ci --no-audit --no-fund --loglevel=error
         if ($LASTEXITCODE -ne 0) {
-            Fail "Installing the web app's packages failed (see the messages above)." `
-                 "Close any other terminal running the web app, then run .\run.cmd again."
+            # A newer npm can reject a lockfile an older npm wrote (missing
+            # optional platform packages). Fall back to a normal install,
+            # which repairs the lockfile instead of refusing it.
+            Info "clean install failed; retrying with a normal install"
+            & npm.cmd install --no-audit --no-fund --loglevel=error
+            if ($LASTEXITCODE -ne 0) {
+                Fail "Installing the web app's packages failed (see the messages above)." `
+                     "Check your internet connection, close any other terminal running the web app, then run .\run.cmd again."
+            }
+            $nodeWant = (Get-FileHash (Join-Path $Web "package-lock.json")).Hash
         }
         Set-Content $nodeStamp $nodeWant
     }
