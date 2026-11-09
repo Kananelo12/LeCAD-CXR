@@ -65,12 +65,18 @@ You are using the real system, not a demo, if:
 
 ### What `run.cmd` does
 
-Nothing on the laptop changes outside this folder. It:
+Nothing on the laptop changes outside this folder (with one exception,
+explained in step 3). It:
 
 1. checks Python and Node.js, and says what to install if one is missing;
 2. writes `.env` from the connection string you paste. A random session key
    is generated, and the model path is `ml/models/model_sens90.pt`;
-3. installs the API's Python packages into `.venv` in this folder;
+3. installs the API's Python packages into `.venv` in this folder. If the
+   laptop's Python is too new for some package, it offers to fetch
+   Python 3.12 for this project. That copy is unpacked into `.python312` in
+   this folder, or, on laptops without the Python install manager, installed
+   for the current Windows user with winget. The laptop's own Python is left
+   as it is;
 4. installs and builds the web app in `web/`;
 5. starts the API on port 8000 and the web app on port 3000, waits until
    both answer, then opens the browser;

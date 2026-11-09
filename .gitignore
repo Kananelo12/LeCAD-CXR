@@ -22,6 +22,8 @@ ml/runs/
 !ml/models/
 !ml/models/model_sens90.pt
 ml/.cache/
+# Python 3.12 that run.ps1 fetches when the laptop's Python is too new.
+.python312/
 wandb/
 
 # ── Secrets ───────────────────────────────────────────────────────────────

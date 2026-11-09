@@ -69,6 +69,9 @@ Step 1 "Checking Python and Node.js"
 # Python is tried last: some packages then need a C++ compiler to install.
 $Known = @("3.14", "3.13", "3.12", "3.11", "3.10", "3.15")
 $candidates = @()
+# A Python 3.12 this script fetched earlier (step 3) comes first.
+$LocalPy = Join-Path $Root ".python312\python.exe"
+if (Test-Path $LocalPy) { $candidates += , @($LocalPy) }
 if (Get-Command py -ErrorAction SilentlyContinue) {
     foreach ($s in $Known) { $candidates += , @("py", "-$s") }
 }
@@ -152,29 +155,80 @@ if (-not (Test-Path $EnvFile)) {
 # -- 3. API (Python) ---------------------------------------------------------
 Step 3 "Installing the API (first run only: about 5 to 10 minutes)"
 
-$VenvPy = Join-Path $Root ".venv\Scripts\python.exe"
-if (-not (Test-Path $VenvPy)) {
+$VenvDir = Join-Path $Root ".venv"
+$VenvPy = Join-Path $VenvDir "Scripts\python.exe"
+$Manual312 = "Install Python 3.12 from https://www.python.org/downloads/ (tick 'Add python.exe to PATH'), close and reopen the terminal, then run .\run.cmd again."
+
+function New-Venv($exe, $exeArgs) {
+    Remove-Item $VenvDir -Recurse -Force -ErrorAction SilentlyContinue
     Info "creating a private Python environment in .venv"
-    & $Python.Exe @($Python.Args) -m venv .venv
+    & $exe @($exeArgs) -m venv $VenvDir
     if ($LASTEXITCODE -ne 0 -or -not (Test-Path $VenvPy)) {
         Fail "Could not create the Python environment." "Delete the .venv folder if it exists, then run .\run.cmd again."
     }
 }
-$pyStamp = Join-Path $Root ".venv\.lecad-installed"
-$pyWant = (Get-FileHash (Join-Path $Root "ml\pyproject.toml")).Hash
-if (-not (Test-Path $pyStamp) -or (Get-Content $pyStamp) -ne $pyWant) {
-    Info "installing PyTorch, FastAPI and the rest (the download is about 250 MB)"
+
+# Sets $script:PipResult to "ok", "no-packages" (this Python is too new for
+# a dependency) or "failed" (most often the network). A variable, not a return
+# value: in PowerShell, whatever pip prints would become part of the result. Ready-made packages only: nothing is
+# ever compiled, so a too-new Python fails at once, before the big downloads.
+function Install-ApiPackages {
     $pipLog = Join-Path $env:TEMP "lecad-pip.log"
     Remove-Item $pipLog -ErrorAction SilentlyContinue
     & $VenvPy -m pip install --upgrade pip --quiet --disable-pip-version-check
-    & $VenvPy -m pip install -e "ml[serve]" --disable-pip-version-check --progress-bar on --log $pipLog
-    if ($LASTEXITCODE -ne 0) {
+    & $VenvPy -m pip install -e "ml[serve]" --only-binary=:all: --disable-pip-version-check `
+        --progress-bar on --log $pipLog
+    $script:PipResult = "failed"
+    if ($LASTEXITCODE -eq 0) { $script:PipResult = "ok"; return }
+    if (-not (Test-Path $pipLog)) { return }
+    if (Select-String -Path $pipLog -Quiet -Pattern "NewConnectionError|ConnectTimeout|Read timed out|ProxyError|getaddrinfo|Connection (aborted|reset|interrupted)") {
+        return
+    }
+    if (Select-String -Path $pipLog -Quiet -Pattern "ResolutionImpossible|No matching distribution|Could not find a version") {
+        $script:PipResult = "no-packages"
+    }
+}
+
+# Fetches Python 3.12 after asking. Through the Python install manager it is
+# unpacked into .python312 in this folder (nothing is installed system-wide);
+# otherwise winget installs it for this Windows user. Sets $script:Py312 to
+# its python.exe, or $null.
+function Get-Python312 {
+    $script:Py312 = $null
+    $pyHelp = if (Get-Command py -ErrorAction SilentlyContinue) { (& py help 2>&1) -join " " } else { "" }
+    if ($pyHelp -match "installation manager") {
+        Info "downloading Python 3.12 into .python312 (about 30 MB)"
+        & py install -y "--target=$(Join-Path $Root '.python312')" 3.12
+        if (Test-Path $LocalPy) { $script:Py312 = $LocalPy }
+    } elseif (Get-Command winget -ErrorAction SilentlyContinue) {
+        Info "installing Python 3.12 for this Windows user with winget (about 30 MB)"
+        & winget install --id Python.Python.3.12 -e --scope user --silent `
+            --accept-package-agreements --accept-source-agreements
+        $userPy = Join-Path $env:LOCALAPPDATA "Programs\Python\Python312\python.exe"
+        if (Test-Path $userPy) { $script:Py312 = $userPy }
+    }
+}
+
+if (-not (Test-Path $VenvPy)) { New-Venv $Python.Exe $Python.Args }
+$pyStamp = Join-Path $VenvDir ".lecad-installed"
+$pyWant = (Get-FileHash (Join-Path $Root "ml\pyproject.toml")).Hash
+if (-not (Test-Path $pyStamp) -or (Get-Content $pyStamp) -ne $pyWant) {
+    Info "installing PyTorch, FastAPI and the rest (the download is about 250 MB)"
+    Install-ApiPackages
+    if ($PipResult -eq "no-packages") {
         $pyNow = & $VenvPy -c "import sys; print('%d.%d' % sys.version_info[:2])"
-        if ((Test-Path $pipLog) -and (Select-String -Path $pipLog -Pattern "Microsoft Visual C\+\+" -Quiet)) {
-            Remove-Item (Join-Path $Root ".venv") -Recurse -Force -ErrorAction SilentlyContinue
-            Fail "Python $pyNow is too new: some packages have no ready-made version for it yet and would need a C++ compiler." `
-                 "Install Python 3.12 from https://www.python.org/downloads/ (tick 'Add python.exe to PATH'), close and reopen the terminal, then run .\run.cmd again."
-        }
+        Write-Host ""
+        Write-Host "      Python $pyNow is too new: some packages have no ready-made version for it yet." -ForegroundColor Yellow
+        Write-Host "      This script can fetch Python 3.12 for this project. Your Python $pyNow stays as it is." -ForegroundColor Yellow
+        $answer = (Read-Host "      Fetch Python 3.12 now? [Y/n]").Trim()
+        if ($answer -match '^(n|no)$') { Fail "Python $pyNow is too new for some packages." $Manual312 }
+        Get-Python312
+        if (-not $Py312) { Fail "Python 3.12 could not be fetched automatically." $Manual312 }
+        Ok "Python 3.12 ready"
+        New-Venv $Py312 @()
+        Install-ApiPackages
+    }
+    if ($PipResult -ne "ok") {
         Fail "Installing the Python packages failed (see the messages above)." `
              "Check the internet connection, then run .\run.cmd again. It continues where it stopped."
     }

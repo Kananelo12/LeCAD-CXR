@@ -10,14 +10,18 @@ dependencies = [
     "pandas>=2.1",
     "pillow>=10.2",
     "scikit-learn>=1.4",
-    "pyyaml>=6.0",
     "python-dotenv>=1.0",
     "tqdm>=4.66",
 ]
 
 [project.optional-dependencies]
-train = ["matplotlib>=3.8", "seaborn>=0.13", "tensorboard>=2.16", "grad-cam>=1.5"]
-serve = ["fastapi>=0.110", "uvicorn[standard]>=0.29", "python-multipart>=0.0.9",
+# pyyaml is for training configs only. Keeping it out of serving lets the API
+# install on new Pythons it has no ready-made package for yet.
+train = ["pyyaml>=6.0", "matplotlib>=3.8", "seaborn>=0.13", "tensorboard>=2.16",
+         "grad-cam>=1.5"]
+# Plain uvicorn, not uvicorn[standard]: that extra adds pyyaml and C speedups
+# the API does not need, and they lag behind new Python releases.
+serve = ["fastapi>=0.110", "uvicorn>=0.29", "python-multipart>=0.0.9",
          "sqlalchemy>=2.0", "psycopg[binary]>=3.1", "argon2-cffi>=23.1",
          "pyjwt>=2.8"]
 dev = ["ruff>=0.3", "pytest>=8.0", "httpx>=0.27", "jupyter>=1.0"]
